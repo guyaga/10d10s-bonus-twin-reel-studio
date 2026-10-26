@@ -1,0 +1,6 @@
+faster-whisper>=1.0
+mediapipe>=0.10
+rembg[cpu]>=2.0
+opencv-python>=4.8
+pillow>=10.0
+numpy>=1.24

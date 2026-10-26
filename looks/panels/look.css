@@ -1,0 +1,78 @@
+/* ===== PANELS look: pop-art comic book. Theme only, no reel content. Inlined by build.py as {{LOOKCSS}}.
+   Palette roles: ink #111111 = gutters, outlines, lettering; paper #F5F3EE = panel paper, bubbles; accent #E63B2E = Ben-Day print, SFX, emphasis.
+   Coordinates: everything inside #stage is in page px (1080x1920). */
+#gut{ background:#111111; }
+#stage{ left:40px; top:40px; width:1080px; height:1920px; overflow:hidden; }
+#stage > *{ position:absolute; }
+.pg{ left:0; top:0; width:1080px; height:1920px; backface-visibility:hidden; }
+.pg > *, .pp > *, .card > *, .stone > *, .rev > *{ position:absolute; }
+.pp{ left:0; top:0; width:1080px; height:1920px; overflow:hidden; }       /* a full-page panel: shape it with clip-path:polygon(...px) */
+.fill{ object-fit:cover; }
+.hid{ opacity:0; }                                                          /* revealed by the timeline (and re-hidden at t=0) */
+
+/* Ben-Day print surfaces */
+.bd-red{ background-color:#E63B2E; background-image:radial-gradient(rgba(245,243,238,.42) 27%, transparent 31%); background-size:22px 22px; }
+.bd-redk{ background-color:#E63B2E; background-image:radial-gradient(rgba(17,17,17,.22) 28%, transparent 32%); background-size:20px 20px; }
+.bd-paper{ background-color:#F5F3EE; background-image:radial-gradient(color-mix(in srgb, #E63B2E 50%, transparent) 25%, transparent 29%); background-size:22px 22px; }
+.bd-ink{ background-color:#111111; background-image:radial-gradient(rgba(245,243,238,.13) 26%, transparent 30%); background-size:20px 20px; }
+.bd-fade{ -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.25), #000 70%); }
+.rays{ background:repeating-conic-gradient(from 0deg at var(--rx,50%) var(--ry,50%), rgba(17,17,17,.88) 0deg 5deg, transparent 5deg 15deg); }
+
+/* the twin: a panel background layer + a clip layer (same quad, plus an optional head tab so his head breaks the frame) */
+#tpan, #twc{ left:0; top:0; width:1080px; height:1920px; }
+#tpan > *{ position:absolute; left:0; top:0; width:1080px; height:1920px; opacity:0; }
+#tpan[data-bg="tbP"] #tbP, #tpan[data-bg="tbR"] #tbR, #tpan[data-bg="tbK"] #tbK{ opacity:1; }
+#twin{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:0 0;
+  filter:drop-shadow(5px 0 0 #111111) drop-shadow(-5px 0 0 #111111) drop-shadow(0 5px 0 #111111) drop-shadow(0 -5px 0 #111111); }
+#twin > *{ position:absolute; left:0; top:0; width:1920px; height:1080px; }
+
+/* lettering */
+.ono{ font-family:"Bangers",sans-serif; font-size:150px; line-height:1; letter-spacing:.03em; white-space:nowrap; direction:ltr;
+  color:#F5F3EE; -webkit-text-stroke:12px #111111; paint-order:stroke fill;
+  text-shadow:4px 4px 0 #111111, 8px 8px 0 #111111, 12px 12px 0 #111111; }
+.ono.red{ color:#E63B2E; }
+.ono.he{ font-family:"Rubik",sans-serif; font-weight:900; direction:rtl; letter-spacing:0; }
+.ono.xr{ text-shadow:4px 4px 0 #E63B2E, 8px 8px 0 #E63B2E, 12px 12px 0 #E63B2E, 16px 16px 0 #111111; }   /* red extrusion */
+.nbox{ background:#F5F3EE; border:6px solid #111111; box-shadow:8px 8px 0 #111111; font-family:"Secular One",sans-serif; font-size:44px; line-height:1.15;
+  color:#111111; padding:4px 22px 10px; white-space:nowrap; direction:rtl; }
+.nbox.red{ background:#E63B2E; color:#F5F3EE; }
+.nbox.ink{ background:#111111; color:#F5F3EE; border-color:#111111; box-shadow:8px 8px 0 #E63B2E; }
+.nbox .lat{ font-family:"Bangers",sans-serif; letter-spacing:.04em; }
+/* a speech bubble inside a panel (the villain talks) */
+.sb{ background:#F5F3EE; border:5px solid #111111; border-radius:50%; font-family:"Secular One",sans-serif; font-size:38px; line-height:1.1; color:#111111;
+  padding:18px 26px 24px; text-align:center; direction:rtl; }
+.sb::after{ content:""; position:absolute; left:46%; bottom:-34px; width:40px; height:40px; background:#111111; clip-path:polygon(0 0, 100% 0, 30% 100%); }
+/* jagged scream bubble: wrapper draws the ink outline, inner is the clipped red star */
+.jagw{ filter:drop-shadow(4px 0 0 #111111) drop-shadow(-4px 0 0 #111111) drop-shadow(0 4px 0 #111111) drop-shadow(0 -4px 0 #111111) drop-shadow(7px 8px 0 #111111); }
+.jag{ position:absolute; inset:0; background:#E63B2E; color:#F5F3EE; font-family:"Secular One",sans-serif; text-align:center; direction:rtl;
+  display:flex; align-items:center; justify-content:center; line-height:1.05;
+  clip-path:polygon(0% 14%, 10% 18%, 7% 0%, 21% 12%, 29% 1%, 37% 13%, 48% 0%, 56% 12%, 67% 1%, 73% 14%, 85% 2%, 88% 17%, 100% 7%, 94% 31%, 100% 46%, 93% 58%, 100% 77%, 91% 84%, 97% 100%, 82% 90%, 72% 100%, 62% 89%, 50% 99%, 40% 88%, 28% 100%, 20% 87%, 5% 97%, 8% 80%, 0% 70%, 6% 54%, 0% 40%, 7% 28%); }
+.jag.paper{ background:#F5F3EE; color:#111111; }
+/* panel furniture */
+.mug{ border:8px solid #111111; overflow:hidden; background:#F5F3EE; }
+.mug img{ width:100%; height:100%; object-fit:cover; display:block; }
+.plac{ left:50%; bottom:14px; transform:translateX(-50%); background:#111111; color:#F5F3EE; font:400 40px "Bangers",sans-serif; letter-spacing:.06em; padding:2px 16px; white-space:nowrap; }
+.cell{ display:flex; align-items:center; justify-content:center; font:400 200px/1 "Bangers",sans-serif; color:#E63B2E; -webkit-text-stroke:10px #111111; paint-order:stroke fill; }
+.cell.on{ color:#F5F3EE; }
+.spd{ background:repeating-linear-gradient(100deg, transparent 0 46px, rgba(245,243,238,.75) 46px 50px, transparent 50px 90px, rgba(17,17,17,.55) 90px 93px); }
+/* RIP stone: two clipped halves of the same face split on a jagged crack */
+.face{ position:absolute; inset:0; border:10px solid #111111; border-radius:170px 170px 10px 10px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  background-color:#F5F3EE; background-image:linear-gradient(90deg, #F5F3EE 40%, rgba(245,243,238,0) 85%), radial-gradient(color-mix(in srgb, #E63B2E 70%, transparent) 26%, transparent 30%);
+  background-size:auto, 16px 16px; }
+.face b{ font:400 92px/1 "Bangers",sans-serif; color:#111111; letter-spacing:.04em; }
+.face span{ font:400 54px/1.05 "Secular One",sans-serif; color:#111111; text-align:center; direction:rtl; margin-top:8px; }
+.half{ inset:0; }
+.half.l{ clip-path:polygon(0 0, 52% 0, 44% 18%, 58% 34%, 46% 52%, 60% 70%, 48% 86%, 55% 100%, 0 100%); transform-origin:0% 100%; }
+.half.r{ clip-path:polygon(52% 0, 100% 0, 100% 100%, 55% 100%, 48% 86%, 60% 70%, 46% 52%, 58% 34%, 44% 18%); transform-origin:100% 100%; }
+.crk{ left:0; top:0; width:100%; height:100%; overflow:visible; }
+.crk{ clip-path:inset(0% 0% 100% 0%); }                                   /* the crack "draws" top to bottom by unclipping */
+.crk polyline{ fill:none; stroke:#111111; stroke-width:9; stroke-linejoin:miter; vector-effect:non-scaling-stroke; }
+.rev{ overflow:hidden; background:repeating-conic-gradient(from 0deg at 50% 70%, #E63B2E 0deg 9deg, #F5F3EE 9deg 18deg);
+  clip-path:polygon(50% 0%, 59% 22%, 80% 8%, 75% 32%, 100% 30%, 82% 50%, 100% 68%, 77% 70%, 86% 96%, 62% 80%, 50% 100%, 38% 80%, 14% 96%, 23% 70%, 0% 68%, 18% 50%, 0% 30%, 25% 32%, 20% 8%, 41% 22%); }
+.rev img{ mix-blend-mode:multiply; }
+.btn{ background:#E63B2E; color:#F5F3EE; border:6px solid #111111; box-shadow:7px 7px 0 #111111; font:400 50px/1 "Bangers",sans-serif; letter-spacing:.05em; padding:12px 24px 10px; white-space:nowrap; text-align:center; }
+#whip{ left:0; top:0; width:1080px; height:1920px; opacity:0;
+  background:repeating-linear-gradient(0deg, transparent 0 26px, rgba(245,243,238,.55) 26px 30px, transparent 30px 61px, rgba(17,17,17,.6) 61px 64px);
+  -webkit-mask-image:linear-gradient(90deg, #000, transparent 30%, transparent 70%, #000); }
+#hdr{ left:44px; top:30px; width:992px; -webkit-text-stroke:8px #111111; paint-order:stroke fill; font:400 40px/1 "Bangers",sans-serif; letter-spacing:.07em; color:#F5F3EE; direction:ltr; display:flex; justify-content:space-between; }
+#hdr b{ font-weight:400; color:#E63B2E; }

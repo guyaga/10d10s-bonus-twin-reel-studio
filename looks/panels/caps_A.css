@@ -1,0 +1,24 @@
+      /* PANELS captions: a comic speech bubble beside his head, tail to the mouth. #caps is moved per page with bubAt(). */
+      #caps{ position:absolute; left:40px; top:1040px; width:550px; height:240px; }
+      .cap{ position:absolute; inset:0; display:flex; align-items:center; justify-content:flex-start; direction:rtl; opacity:0; transform-origin:100% 85%; }
+      #caps[data-side="l"] .cap{ justify-content:flex-end; transform-origin:0% 85%; }
+      .bb{ position:relative; display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:0 16px; max-width:100%;
+        padding:30px 58px 40px; background:#F5F3EE; border:7px solid #111111; border-radius:50%; box-shadow:9px 10px 0 rgba(17,17,17,.85); }
+      .bb::before{ content:""; position:absolute; right:-64px; bottom:-22px; width:118px; height:92px; background:#111111; clip-path:polygon(0 8%, 34% 0, 100% 100%); }
+      .bb::after{ content:""; position:absolute; right:-46px; bottom:-8px; width:100px; height:80px; background:#F5F3EE; clip-path:polygon(0 4%, 30% 0, 100% 100%); }
+      #caps[data-side="l"] .bb::before{ right:auto; left:-64px; transform:scaleX(-1); }
+      #caps[data-side="l"] .bb::after{ right:auto; left:-46px; transform:scaleX(-1); }
+      /* bidi: the bubble is an RTL flex row (words laid out right to left in spoken order); each word is its own isolated run,
+         so a Latin word never reorders its neighbours or grabs their punctuation. Latin words use Secular One: Bangers' slanted I read as "/". */
+      .bb{ direction:rtl; }
+      .w{ position:relative; z-index:1; font-family:"Secular One","Rubik",sans-serif; font-weight:400; font-size:62px; line-height:1.08; color:#111111; white-space:nowrap; unicode-bidi:isolate; direction:rtl; }
+      .w.lat{ font-family:"Secular One","Rubik",sans-serif; letter-spacing:.01em; font-size:62px; }
+      .w.key{ font-size:76px; color:#E63B2E; -webkit-text-stroke:3px #111111; paint-order:stroke fill; }
+      .w[data-on="1"]{ color:#E63B2E; }
+      /* a quote or a scream (chunk starts with a BURST word): jagged red burst, no tail */
+      .cap.burst{ filter:drop-shadow(5px 0 0 #111111) drop-shadow(-5px 0 0 #111111) drop-shadow(0 5px 0 #111111) drop-shadow(0 -5px 0 #111111) drop-shadow(9px 10px 0 #111111); }
+      .cap.burst .bb{ border:0; border-radius:0; box-shadow:none; background:#E63B2E; padding:58px 82px 64px;
+        clip-path:polygon(0% 14%, 10% 18%, 7% 0%, 21% 12%, 29% 1%, 37% 13%, 48% 0%, 56% 12%, 67% 1%, 73% 14%, 85% 2%, 88% 17%, 100% 7%, 94% 31%, 100% 46%, 93% 58%, 100% 77%, 91% 84%, 97% 100%, 82% 90%, 72% 100%, 62% 89%, 50% 99%, 40% 88%, 28% 100%, 20% 87%, 5% 97%, 8% 80%, 0% 70%, 6% 54%, 0% 40%, 7% 28%); }
+      .cap.burst .bb::before, .cap.burst .bb::after{ display:none; }
+      .cap.burst .w, .cap.burst .w.key{ color:#F5F3EE; -webkit-text-stroke:0; }
+      .cap.burst .w[data-on="1"]{ color:#111111; }

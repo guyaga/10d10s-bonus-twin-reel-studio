@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="he">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    {{FONTS}}
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      *{margin:0;padding:0;box-sizing:border-box;}
+      html,body{ width:1080px; height:1920px; overflow:hidden; }
+      #root{ position:relative; width:1080px; height:1920px; overflow:hidden; }
+      #cam{ position:absolute; inset:-40px; transform-origin:50% 45%; }
+      #flash{ left:40px; top:40px; width:1080px; height:1920px; background:#fff; opacity:0; }
+      .caps{ position:absolute; left:50px; right:50px; top:1430px; height:220px; }
+      .cap{ position:absolute; inset:0; display:flex; flex-direction:row; flex-wrap:wrap; justify-content:center; align-items:center; gap:0 20px; direction:rtl; opacity:0; }
+{{LOOKCSS}}
+{{CAPSTYLE}}
+      /* ---------- this reel ---------- */
+      /* frame 0 (thumbnail): the bubble starts in HERO from CSS, not from the timeline */
+      #callclip{ clip-path:inset(260px 50px 540px 50px round 56px); }
+      #twin{ transform:translate(-585.6px,324px) scale(1.2); }
+      #ring{ left:90px; top:300px; width:980px; height:1120px; }
+
+      #hook0{ left:90px; top:1446px; width:980px; height:300px; }
+      #hook0 .lb{ right:44px; top:34px; display:flex; gap:16px; align-items:center; direction:rtl; }
+      #hook0 .lb span{ font:700 40px/1 var(--ui); color:rgba(17,17,17,.7); }
+      #hook0 .row{ left:0; right:0; top:104px; height:170px; display:flex; align-items:center; justify-content:center; gap:26px; direction:ltr; }
+      #hook0 .was{ font:800 92px/1 var(--ui); color:rgba(17,17,17,.42); text-decoration:line-through; text-decoration-color:var(--red); text-decoration-thickness:8px; }
+      #hook0 .now{ font:900 168px/1 var(--ui); color:var(--red); letter-spacing:-0.03em; }
+
+      #lst{ left:90px; top:808px; width:980px; height:850px; }
+      #lst .ph{ left:0; top:0; width:980px; height:470px; background:#F2F0EB; }
+      #lst .ph img{ position:absolute; left:290px; top:0; width:400px; height:470px; object-fit:cover; }
+      #lst .glow{ left:330px; top:60px; width:320px; height:360px; border-radius:50%; background:radial-gradient(closest-side, color-mix(in srgb, var(--red) 55%, transparent), transparent); opacity:0; }
+      #lst .sold{ left:-120px; top:58px; width:520px; height:96px; background:var(--red); color:var(--paper); font:900 60px/96px var(--ui); text-align:center; letter-spacing:.12em; transform:rotate(-30deg) scaleX(0); box-shadow:0 10px 24px rgba(0,0,0,.25); direction:ltr; }
+      #lst .ti{ right:44px; top:500px; font:800 50px/1.15 var(--ui); direction:rtl; white-space:nowrap; }
+      #lst .se{ right:44px; top:570px; display:flex; gap:12px; align-items:center; font:600 36px/1.2 var(--ui); color:rgba(17,17,17,.62); direction:rtl; }
+      #lst .se .av{ width:46px; height:46px; background:var(--ink); color:var(--paper); font-size:20px; }
+      #lst .se .vf{ width:30px; height:30px; border-radius:50%; background:var(--red); }
+      #lst .pl{ right:44px; top:648px; font:600 32px/1 var(--ui); color:rgba(17,17,17,.55); direction:rtl; }
+      #lst #pr{ right:40px; top:700px; font:900 90px/1 var(--ui); direction:ltr; letter-spacing:-0.02em; color:var(--ink); }
+      #lst .btn{ left:40px; top:700px; width:270px; height:110px; border-radius:55px; display:flex; align-items:center; justify-content:center; gap:14px; font:800 46px/1 var(--ui); direction:rtl; }
+      #lst #btnBuy{ background:var(--red); color:var(--paper); }
+      #lst #btnSold{ background:var(--ink); color:var(--paper); opacity:0; }
+      #gain{ left:440px; top:1440px; z-index:3; }
+
+      #auc{ left:90px; top:190px; width:490px; height:80px; display:flex; gap:14px; align-items:center; direction:rtl; }
+      #aucY{ font:700 34px/1 var(--ui); color:var(--paper); white-space:nowrap; }
+      .bid{ width:490px; }
+
+      #sbars{ left:70px; top:130px; width:1020px; height:8px; display:flex; gap:10px; }
+      #sbars .sseg{ position:relative; flex:1; }
+      #shead{ left:70px; top:156px; width:1020px; height:80px; display:flex; align-items:center; gap:18px; direction:rtl; color:var(--ink); }
+      #shead .av{ width:72px; height:72px; background:var(--red); color:var(--paper); font-size:30px; }
+      #shead b{ font:800 40px/1 var(--ui); } #shead span{ font:500 34px/1 var(--ui); color:rgba(17,17,17,.55); }
+
+      #bnd{ left:636px; top:1086px; width:420px; height:430px; }
+      #bnd img{ left:14px; top:14px; width:392px; height:392px; border-radius:18px; object-fit:cover; }
+      #bnd .pill{ left:50%; top:-34px; transform:translateX(-50%); }
+      #mem{ left:96px; top:1050px; width:440px; height:470px; }
+      #mem .hd{ right:28px; top:24px; display:flex; gap:12px; align-items:center; font:700 32px/1 var(--ui); color:rgba(17,17,17,.6); direction:rtl; }
+      #mem .hd i{ display:block; width:14px; height:14px; border-radius:50%; background:var(--red); }
+      #mem img{ left:14px; top:76px; width:412px; height:280px; border-radius:18px; object-fit:cover; }
+      #mem .ag{ right:28px; top:362px; font:900 92px/1 var(--ui); color:var(--ink); direction:rtl; white-space:nowrap; }
+      #mem .ag em{ font-style:normal; color:var(--red); }
+      #reply{ left:80px; top:1862px; width:1000px; height:76px; border-radius:38px; border:3px solid rgba(17,17,17,.35); display:flex; align-items:center; padding:0 34px; font:500 34px/1 var(--ui); color:rgba(17,17,17,.5); direction:rtl; }
+
+      #chat{ left:90px; top:808px; width:980px; height:790px; background:color-mix(in srgb, var(--paper) 9%, var(--ink)); border-radius:44px; box-shadow:0 0 0 2px rgba(245,243,238,.14); }
+      #chat > *{ position:absolute; }
+      #chat .hd{ right:36px; top:28px; display:flex; gap:16px; align-items:center; direction:rtl; color:var(--paper); }
+      #chat .hd .av{ width:64px; height:64px; background:var(--red); color:var(--paper); font-size:26px; }
+      #chat .hd b{ font:800 40px/1 var(--ui); } #chat .hd span{ font:500 30px/1 var(--ui); opacity:.6; }
+      #chat .msg{ right:36px; }
+      #m3 img{ display:block; width:300px; height:300px; border-radius:22px; object-fit:cover; margin-top:12px; }
+      #typing{ right:36px; top:690px; width:150px; height:72px; border-radius:36px; background:rgba(245,243,238,.16); }
+      #typing i{ position:absolute; top:28px; width:16px; height:16px; border-radius:50%; background:var(--paper); opacity:.8; }
+      #unread{ left:690px; top:250px; width:290px; height:290px; border-radius:50%; background:var(--red); color:var(--paper); display:flex; align-items:center; justify-content:center; font:900 120px/1 var(--ui); direction:ltr; box-shadow:0 0 0 14px color-mix(in srgb, var(--red) 25%, transparent); }
+      #unreadL{ left:600px; top:570px; width:470px; text-align:center; font:700 40px/1.2 var(--ui); color:var(--paper); direction:rtl; }
+
+      #chart{ left:90px; top:808px; width:980px; height:790px; }
+      #chart .hd{ right:96px; top:34px; font:800 46px/1.15 var(--ui); direction:rtl; white-space:nowrap; }
+      #chart .sub{ right:96px; top:96px; font:600 32px/1.2 var(--ui); color:rgba(17,17,17,.55); direction:rtl; }
+      #chart .tabs{ left:40px; top:30px; display:flex; gap:12px; direction:ltr; }
+      #chart .tabs span{ padding:10px 24px 14px; border-radius:30px; font:700 32px/1 var(--ui); background:rgba(17,17,17,.07); color:rgba(17,17,17,.6); }
+      #tab20{ position:relative; }
+      #tab20on{ left:0; top:0; }
+      #chart svg{ left:30px; top:170px; width:920px; height:520px; overflow:visible; }
+      #chart .yrs{ left:40px; top:706px; width:900px; display:flex; justify-content:space-between; font:700 26px/1 var(--mono); color:rgba(17,17,17,.5); direction:ltr; }
+      #mult{ left:560px; top:196px; width:520px; height:270px; text-align:center; }
+      #multL{ left:560px; top:470px; width:520px; text-align:center; font:700 40px/1.2 var(--ui); color:var(--paper); direction:rtl; }
+      #pct{ left:690px; top:540px; }
+      #brk{ left:1000px; top:560px; width:16px; height:420px; background:var(--red); border-radius:8px; transform-origin:50% 100%; }
+      #brk i{ position:absolute; left:-22px; top:-30px; width:0; height:0; border-left:30px solid transparent; border-right:30px solid transparent; border-bottom:44px solid var(--red); }
+      .tch{ z-index:6; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="{{DUR}}" data-width="1080" data-height="1920">
+      <div id="cam">
+        <!-- THE CALL BUBBLE: clip window + twin, then its chrome -->
+        <div id="callclip">
+          <div id="callbg"></div>
+          <div id="twin">
+            <video id="pv" class="clip" src="assets/presenter.webm" muted playsinline data-start="0" data-duration="{{DUR}}" data-track-index="1"></video>
+          </div>
+        </div>
+        <div id="ring"><div id="rtag"><i></i><span id="rtime">00:00</span></div></div>
+
+        <!-- ===== frame 0 / thumbnail (visible from CSS) ===== -->
+        <div class="nb" id="nb0" style="left:70px;top:146px;">
+          <div class="ico">$</div>
+          <div class="tt">נמכר: $16,500,000</div>
+          <div class="bd">קלף פיקאצ'ו אחד. נקנה ב-5 מיליון.</div>
+          <div class="tm">עכשיו</div>
+        </div>
+        <div class="card2" id="hook0">
+          <div class="lb"><span class="pill red">נמכר</span><span>קלף אחד</span></div>
+          <div class="row"><span class="was">$5M</span>
+            <svg width="96" height="60" viewBox="0 0 96 60"><path d="M4 30 H78 M56 8 L82 30 L56 52" fill="none" stroke="#111111" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="now">$16.5M</span></div>
+        </div>
+
+        <!-- ===== beat 1: notification, listing, live auction ===== -->
+        <div class="nb ov" id="nb1" style="left:70px;top:146px;">
+          <div class="ico av">LP</div>
+          <div class="tt">Logan Paul</div>
+          <div class="bd">קנה קלף פיקאצ'ו נדיר</div>
+          <div class="tm">עכשיו</div>
+        </div>
+        <div class="card2 ov" id="lst" style="left:90px;top:808px;width:980px;" data-h="850">
+          <div class="ph"><img src="assets/slab.png" alt=""></div>
+          <div class="glow" id="lglow"></div>
+          <div class="sold" id="lsold">SOLD</div>
+          <div class="ti">קלף פיקאצ'ו · מדורג 10</div>
+          <div class="se"><span class="av">LP</span><span>Logan Paul</span><span class="vf"></span></div>
+          <div class="pl" id="prl">מחיר קנייה</div>
+          <div id="pr">$0</div>
+          <div class="btn" id="btnBuy">קנה עכשיו</div>
+          <div class="btn" id="btnSold">נמכר</div>
+        </div>
+        <div class="pill red ov" id="gain"><span class="tri"></span><span class="ltr">+230%</span></div>
+        <div class="ov" id="auc"><span class="pill red"><span class="dot"></span>LIVE</span><span id="aucY">מכירה פומבית · השנה</span></div>
+        <div class="bid ov" id="bd1" style="left:90px;top:292px;"><span class="av">DK</span><span class="lb">הצעה</span><span class="pr">$6,200,000</span></div>
+        <div class="bid ov" id="bd2" style="left:90px;top:376px;"><span class="av">MR</span><span class="lb">הצעה</span><span class="pr">$8,900,000</span></div>
+        <div class="bid ov" id="bd3" style="left:90px;top:460px;"><span class="av">AS</span><span class="lb">הצעה</span><span class="pr">$11,750,000</span></div>
+        <div class="bid ov" id="bd4" style="left:90px;top:544px;"><span class="av">YL</span><span class="lb">הצעה</span><span class="pr">$14,100,000</span></div>
+        <div class="bid top ov" id="bd5" style="left:90px;top:628px;"><span class="av">??</span><span class="lb">זכייה</span><span class="pr">$16,500,000</span></div>
+
+        <!-- ===== beat 2: the bubble becomes his story ===== -->
+        <div class="ov" id="sbars"><div class="sseg"><i style="width:100%"></i></div><div class="sseg"><i id="sfill" style="width:0%"></i></div><div class="sseg"></div></div>
+        <div class="ov" id="shead"><span class="av">אני</span><b>הסטורי שלי</b><span>עכשיו</span></div>
+        <div class="stk ov" id="bnd" style="left:636px;top:1086px;width:420px;" data-h="430"><img src="assets/binder.png" alt=""><span class="pill ink">האוסף שלי</span></div>
+        <div class="stk ov" id="mem" style="left:96px;top:1050px;width:440px;" data-h="470"><div class="hd"><i></i>זיכרון · לפני הרבה שנים</div><img src="assets/kid.png" alt=""><div class="ag">בן <em>10</em></div></div>
+        <div class="ov" id="reply">שליחת הודעה...</div>
+
+        <!-- ===== beat 3: group chat, then the chart ===== -->
+        <div class="ov" id="chat">
+          <div class="hd"><span class="av">TCG</span><b>אספנים</b><span>1,284 חברים</span></div>
+          <div class="msg ov" id="m1" style="top:130px;"><small>נועה</small>גם אני חזרתי לאסוף!</div>
+          <div class="msg ov" id="m2" style="top:262px;"><small>דניאל</small>הבן שלי ואני אוספים ביחד</div>
+          <div class="msg ov" id="m3" style="top:394px;"><small>מאיה</small>קניתי עוד חבילות</div>
+          <div class="ov" id="typing"><i style="left:34px"></i><i style="left:67px"></i><i style="left:100px"></i></div>
+        </div>
+        <div class="ov" id="unread" style="left:690px;top:250px;width:290px;" data-h="290">99+</div>
+        <div class="ov" id="unreadL">הודעות חדשות</div>
+
+        <div class="card2 ov" id="chart">
+          <div class="hd">מחירי קלפי פוקימון</div>
+          <div class="sub">מדד שוק · כל הקלפים</div>
+          <div class="tabs"><span>1Y</span><span>5Y</span><span id="tab20">2020+</span></div>
+          <svg viewBox="0 0 920 520">
+            <defs><clipPath id="chclip"><rect id="chrect" x="0" y="-200" width="0" height="760"/></clipPath></defs>
+            <g stroke="rgba(17,17,17,.10)" stroke-width="2"><line x1="0" y1="40" x2="920" y2="40"/><line x1="0" y1="160" x2="920" y2="160"/><line x1="0" y1="280" x2="920" y2="280"/><line x1="0" y1="400" x2="920" y2="400"/><line x1="0" y1="500" x2="920" y2="500"/></g>
+            <path id="charea" clip-path="url(#chclip)" style="fill:color-mix(in srgb, #E63B2E 16%, transparent)" stroke="none"/>
+            <path id="chl1" fill="none" stroke="#111111" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+            <path id="chl2" fill="none" stroke="#E63B2E" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle id="chdot" r="18" fill="#E63B2E" stroke="#F5F3EE" stroke-width="6" opacity="0"/>
+          </svg>
+          <div class="yrs"><span>2020</span><span>2021</span><span>2022</span><span>2023</span><span>2024</span><span>2025</span><span>2026</span></div>
+        </div>
+        <div class="big ov" id="mult">×1</div>
+        <div class="ov" id="multL">מאז 2020</div>
+        <div class="ov" id="brk"><i></i></div>
+        <div class="pill red ov" id="pct"><span class="tri"></span><span class="ltr">+1,300%</span></div>
+
+        <!-- phone chrome on top -->
+        <div id="sbar"><span id="sclock">9:41</span><span class="ic"><span class="bars"><i style="height:9px"></i><i style="height:14px"></i><i style="height:19px"></i><i style="height:25px"></i></span><span class="batt"><i></i><b></b></span></span></div>
+        <div id="abar"><span class="nm" id="abarNm" style="opacity:0">{{HEADER}}</span><span class="bell"><i></i><u></u><b id="badge">1</b></span></div>
+        <div id="homebar"></div>
+
+        <!-- fingers -->
+        <div class="tch ov" id="tch1" style="left:540px;top:300px;"></div>
+        <div class="tch ov" id="tch2" style="left:520px;top:1300px;"></div>
+        <div class="tch dk ov" id="tch3" style="left:520px;top:1300px;"></div>
+        <div class="tch ov" id="tch4" style="left:520px;top:1300px;"></div>
+        <div class="tch dk ov" id="tch5" style="left:832px;top:822px;"></div>
+        <div id="flash"></div>
+      </div>
+      <div class="caps" id="caps"></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      // entrances never pre-render their from-state (never patch tl.fromTo/tl.from: the renderer hangs)
+      const ft = (s, f, t, p) => {
+        const to = { immediateRender: false, ...t };
+        if (f.opacity !== undefined && to.opacity === undefined && !to.keyframes) to.opacity = f.opacity;
+        return tl.fromTo(s, f, to, p);
+      };
+      const DUR = {{DUR}};
+      const E = { enter: "expo.out", pop: "back.out(2.4)", move: "power4.inOut", exit: "expo.in" };
+      const HANDS = {{HANDS}};
+      const hand = (f, i, g) => { const [hx, hy] = g[1][Math.min(i, g[1].length - 1)]; return [f.x + hx * f.scale, f.y + hy * f.scale]; };
+      const gesture = (t) => HANDS.reduce((a, b) => Math.abs(b[0] - t) < Math.abs(a[0] - t) ? b : a);
+      const shake = (t, a = 12) => ft("#cam", { x: 0, y: 0 }, { x: a, y: -a * 0.7, duration: 0.035, repeat: 5, yoyo: true, ease: "none" }, t);
+      const flash = (t, o = 0.5) => { tl.set("#flash", { opacity: o }, t); tl.set("#flash", { opacity: 0 }, t + 0.067); };
+{{LOOKJS}}
+      // explicit t=0 state for every overlay (renderer seeks out of order)
+      tl.set(".ov", { opacity: 0 }, 0);
+      tl.set("#lsold", { scaleX: 0, rotation: -30 }, 0);
+      tl.set("#brk", { scaleY: 0 }, 0);
+
+      // ---------- the chart paths (2020 -> 2026, x14)
+      const PTS = [[2020, 1], [2020.5, 1.7], [2021, 3.9], [2021.4, 4.6], [2022, 3.4], [2022.6, 2.8], [2023, 3.1], [2023.6, 3.8], [2024, 5.1], [2024.5, 6.3], [2025, 7.6]];
+      const px = ([yr, v]) => [Math.round((yr - 2020) / 6 * 880 + 20), Math.round(500 - v / 14 * 450)];
+      const P1 = PTS.map(px), END = px([2026, 14]), MID = px([2025.6, 9.6]);
+      const d1 = "M" + P1.map((p) => p.join(" ")).join(" L");
+      const d2 = `M${P1[P1.length - 1].join(" ")} L${MID.join(" ")} L${END.join(" ")}`;
+      document.getElementById("chl1").setAttribute("d", d1);
+      document.getElementById("chl2").setAttribute("d", d2);
+      document.getElementById("charea").setAttribute("d", d1 + ` L${MID.join(" ")} L${END.join(" ")} L${END[0]} 500 L20 500 Z`);
+      const L1 = document.getElementById("chl1").getTotalLength(), L2 = document.getElementById("chl2").getTotalLength();
+      tl.set("#chl1", { attr: { "stroke-dasharray": L1, "stroke-dashoffset": L1 } }, 0);
+      tl.set("#chl2", { attr: { "stroke-dasharray": L2, "stroke-dashoffset": L2 } }, 0);
+      tl.set("#chdot", { attr: { cx: END[0], cy: END[1] } }, 0);
+      tl.set("#chrect", { attr: { width: 0 } }, 0);
+
+      // ---------- the bubble: HERO (CSS, frame 0) -> PIP right -> full-screen STORY -> PIP left
+      const HERO = { x: 50, y: 260, w: 980, h: 1120, r: 56 }, HV = VIEW(HERO, 1.2, 0.40);
+      const PIP = { x: 560, y: 150, w: 470, h: 600, r: 44 }, PV = VIEW(PIP, 0.85, 0.45);
+      const STORY = { x: 0, y: 0, w: 1080, h: 1920, r: 0 }, SV = VIEW(STORY, 1.18, 0.333);
+      const PIPL = { x: 50, y: 150, w: 470, h: 600, r: 44 }, LV = VIEW(PIPL, 0.85, 0.45);
+      callInit(HERO, HV);
+      clock("#rtime", 1, Math.floor(DUR));
+
+      // ===== BEAT 1 (0.25 - 6.85): Logan Paul bought for $5M, sold this year for $16.5M
+      // thumbnail clears: notification flicks away, hook card drops
+      ft("#nb0", { y: 0, opacity: 1 }, { y: -300, opacity: 0, duration: 0.28, ease: "power3.in" }, 0.08);
+      flickUp("#tch1", 0.02, 300, 0.24);
+      ft("#hook0", { y: 0, opacity: 1 }, { y: 420, opacity: 0, duration: 0.3, ease: "power3.in" }, 0.06);
+      notify("#nb1", 0.34, 1.08); badge("#badge", 0.4, 2);
+      tl.set("#abarNm", { opacity: 1 }, 1.45);   // the app name stays hidden (CSS) while the notifications sit over the app bar
+      dock(1.1, PIP, PV, 0.55);
+      emerge("lst", 1.2, PV, 0, 0, 0.55); badge("#badge", 1.3, 3);
+      // "Pikachu": the slab's glow breathes
+      ft("#lglow", { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1.15, duration: 0.5, ease: "power2.out" }, 1.78);
+      ft("#lglow", { opacity: 1, scale: 1.15 }, { opacity: 0.35, scale: 1, duration: 0.6, ease: "sine.inOut" }, 2.3);
+      // "$5M"
+      cnt("#pr", 2.3, 0.75, 0, 5000000, usd, 18);
+      ft("#pr", { scale: 1.12 }, { scale: 1, duration: 0.3, ease: "back.out(3)" }, 3.05);
+      // "this year": the live auction opens beside the bubble
+      rise("#auc", 3.74, 40); tl.set("#prl", { textContent: "הצעה גבוהה" }, 4.36);
+      [["#bd1", 4.45], ["#bd2", 4.8], ["#bd3", 5.15], ["#bd4", 5.5], ["#bd5", 5.95]].forEach(([s, t], k) => { pop(s, t, 0.7, 0.26); badge("#badge", t, 4 + k); });
+      cnt("#pr", 5.06, 1.2, 5000000, 16500000, usd, 30, 1.6);
+      tl.set("#pr", { color: "#E63B2E" }, 5.06);
+      // SOLD
+      ft("#lsold", { scaleX: 0, rotation: -30 }, { scaleX: 1, rotation: -30, duration: 0.22, ease: "expo.out" }, 6.28);
+      ft("#btnBuy", { opacity: 1 }, { opacity: 0, duration: 0.1 }, 6.28); ft("#btnSold", { opacity: 0, scale: 1.3 }, { opacity: 1, scale: 1, duration: 0.25, ease: "back.out(3)" }, 6.28);
+      tl.set("#prl", { textContent: "נמכר ב-" }, 6.28);
+      pop("#gain", 6.38, 0.4, 0.3);
+      shake(6.28, 8); flash(6.28, 0.25);
+
+      // ===== BEAT 2 (6.85 - 10.5): "and me? back to collecting, like when I was ten"
+      swipeOut("#lst", 6.72); swipeOut("#gain", 6.72);
+      ["#auc", "#bd1", "#bd2", "#bd3", "#bd4", "#bd5"].forEach((s) => swipeOut(s, 6.72, 0.38));
+      flickUp("#tch2", 6.66, 800, 0.36);
+      dock(6.86, STORY, SV, 0.6, "expo.inOut");
+      ft("#sbar", { color: "#F5F3EE" }, { color: "#111111", duration: 0.3 }, 7.0);
+      out("#abar", 6.9, 0.2); out("#rtag", 6.9, 0.15); out("#homebar", 6.9, 0.2);
+      rise("#sbars", 7.2, -20); rise("#shead", 7.25, -20); rise("#reply", 7.3, 30);
+      ft("#sfill", { width: "0%" }, { width: "100%", duration: 3.3, ease: "none" }, 7.2);
+      emerge("bnd", 8.2, SV, 0, 4);
+      emerge("mem", 9.06, SV, 1, -3);
+      ft("#mem .ag", { scale: 1 }, { scale: 1.15, duration: 0.14, yoyo: true, repeat: 1, ease: "power2.out" }, 9.9);
+
+      // ===== BEAT 3 (10.5 - 16.08): "not only me: since 2020 prices jumped x14"
+      flickUp("#tch3", 10.36, 800, 0.36);
+      ["#bnd", "#mem", "#sbars", "#shead", "#reply"].forEach((s) => swipeOut(s, 10.42, 0.4));
+      dock(10.46, PIPL, LV, 0.55);
+      ft("#sbar", { color: "#111111" }, { color: "#F5F3EE", duration: 0.25 }, 10.6);
+      ft("#abar", { opacity: 0 }, { opacity: 1, duration: 0.25 }, 10.75); ft("#rtag", { opacity: 0 }, { opacity: 1, duration: 0.2 }, 10.9); ft("#homebar", { opacity: 0 }, { opacity: 1, duration: 0.2 }, 10.75);
+      swipeIn("#chat", 10.5);
+      pop("#m1", 10.66, 0.7); pop("#m2", 10.98, 0.7); pop("#m3", 11.28, 0.7); pop("#typing", 11.5, 0.7);
+      badge("#badge", 10.66, 9); badge("#badge", 10.98, 10); badge("#badge", 11.28, 11);
+      emerge("unread", 11.04, LV, 0, 0, 0.45); rise("#unreadL", 11.2, 30);
+      // "since 2020": scroll on to the chart, tap the 2020 tab
+      flickUp("#tch4", 11.6, 700, 0.3);
+      swipeOut("#chat", 11.66, 0.38); out("#unread", 11.66); out("#unreadL", 11.66);
+      swipeIn("#chart", 11.72);
+      tap("#tch5", 11.98);
+      tl.set("#tab20", { backgroundColor: "#E63B2E", color: "#F5F3EE" }, 12.04);
+      rise("#mult", 12.0, 40); rise("#multL", 12.05, 30);
+      // the line: steady climb 2020-2025, then the breakout to x14
+      ft("#chl1", { attr: { "stroke-dashoffset": L1 } }, { attr: { "stroke-dashoffset": 0 }, duration: 1.55, ease: "power1.inOut" }, 12.84);
+      ft("#chrect", { attr: { width: 0 } }, { attr: { width: P1[P1.length - 1][0] }, duration: 1.55, ease: "power1.inOut" }, 12.84);
+      cnt("#mult", 12.84, 1.55, 1, 7.6, times, 12, 1);
+      ft("#chl2", { attr: { "stroke-dashoffset": L2 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.7, ease: "power2.in" }, 14.42);
+      ft("#chrect", { attr: { width: P1[P1.length - 1][0] } }, { attr: { width: 920 }, duration: 0.7, ease: "power2.in" }, 14.42);
+      cnt("#mult", 14.42, 0.74, 7.6, 14, times, 8, 1);
+      pop("#chdot", 15.1, 0.2, 0.3);
+      // x14 lands: the counter punches, the arrow breaks out of the card
+      ft("#mult", { scale: 1.45 }, { scale: 1, duration: 0.35, ease: "back.out(2.6)" }, 15.16);
+      ft("#brk", { opacity: 1, scaleY: 0 }, { opacity: 1, scaleY: 1, duration: 0.3, ease: "expo.out" }, 15.12);
+      pop("#pct", 15.3, 0.4, 0.3);
+      jolt("#chart", 15.14, 10); shake(15.14, 10); flash(15.14, 0.3);
+
+      // ---------- captions
+      const KEY = new Set(["פיקאצ'ו", "בשישה-עשר", "עשר.", "2020", "14"]);   // punch words, spelled as in the built captions
+      const caps = {{CAPS}};
+      const box = document.getElementById("caps");
+      caps.forEach((chunk, i) => {
+        const d = document.createElement("div"); d.className = "cap"; d.id = "cap" + i;
+        chunk.forEach(([w], j) => { const s = document.createElement("span"); s.className = "w" + (/^[\x00-\x7F×]+$/.test(w) ? " lat" : "") + (KEY.has(w) ? " key" : ""); s.id = `cw${i}_${j}`; s.textContent = w; d.appendChild(s); });
+        box.appendChild(d);
+        const start = chunk[0][1], end = i + 1 < caps.length ? Math.min(caps[i + 1][0][1], chunk[chunk.length - 1][1] + 1.2) : DUR;
+        tl.set(d, { opacity: 0 }, 0);
+        ft(d, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.16, ease: "expo.out" }, start - 0.04);
+        chunk.forEach(([w, s], j) => { const nx = j + 1 < chunk.length ? chunk[j + 1][1] : end; tl.set(`#cw${i}_${j}`, { attr: { "data-on": "1" } }, s); tl.set(`#cw${i}_${j}`, { attr: { "data-on": "0" } }, nx); });
+        if (i + 1 < caps.length) tl.set(d, { opacity: 0 }, end - 0.02);
+      });
+      tl.set({}, {}, DUR);
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

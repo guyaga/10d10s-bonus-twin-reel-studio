@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="he">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    {{FONTS}}
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      /* PANELS starter. Read look/LOOK.md first. Everything marked REPLACE is demo content: swap it for your story.
+         Colours: only #111111 / #F5F3EE / #E63B2E, rgba(17,17,17,a) / rgba(245,243,238,a) and color-mix of var(--red). build.py swaps them per creator. */
+      *{margin:0;padding:0;box-sizing:border-box;}
+      :root{ --ink:#111111; --paper:#F5F3EE; --red:#E63B2E; }
+      html,body{ width:1080px; height:1920px; overflow:hidden; background:#111111; }
+      #root{ position:relative; width:1080px; height:1920px; overflow:hidden; background:#111111; }
+      #cam{ position:absolute; inset:-40px; transform-origin:50% 45%; }
+      #cam > *{ position:absolute; }
+      .full{ left:40px; top:40px; width:1080px; height:1920px; }
+      #flash{ background:#F5F3EE; opacity:0; }
+      #grain{ background:url(assets/grain.png); mix-blend-mode:overlay; opacity:.16; pointer-events:none; }
+{{LOOKCSS}}
+      #fx, #fxu{ left:0; top:0; width:1080px; height:1920px; }
+      #fx > *, #fxu > *{ position:absolute; }
+
+      /* ---- frame 0 (the thumbnail): the cover is visible from CSS, never from a t=0 set.
+         These three lines must equal stageTwin(0, Q1, F1, TAB1) below: clipB(Q1), clipT(Q1, TAB1), F1 as translate + scale. */
+      #tpan{ clip-path:polygon(40px 1130px, 540px 1095px, 540px 1095px, 540px 1095px, 540px 1095px, 1040px 1060px, 1040px 1880px, 40px 1880px); }
+      #twc{ clip-path:polygon(40px 1130px, 420px 1103.4px, 420px 600px, 960px 600px, 960px 1065.6px, 1040px 1060px, 1040px 1880px, 40px 1880px); }
+      #twin{ transform:translate(-375.2px, 746.4px) scale(1.12); }
+      .pg:not(#pg1){ opacity:0; }
+
+      /* ---- cover */
+      #c1rays{ left:0; top:0; width:1080px; height:1240px; object-position:50% 30%; transform-origin:50% 40%; }
+      #c1art{ left:0; top:0; width:1080px; height:1240px; overflow:hidden; clip-path:polygon(0 0, 1080px 0, 1080px 1036px, 0 1111px); }   /* ends a gutter above his panel (Q1 top edge - 22px) */
+      #c1shade{ left:0; top:0; width:1080px; height:620px; background:linear-gradient(180deg, rgba(17,17,17,.75), rgba(17,17,17,0)); }
+      #c1mast{ left:40px; top:104px; width:780px; text-align:center; font-size:158px; transform:rotate(-3deg); }
+      #c1corner{ left:842px; top:112px; width:198px; height:226px; background:#111111; border:6px solid #F5F3EE; box-shadow:8px 8px 0 #111111; text-align:center; direction:ltr; transform:rotate(2deg); }
+      #c1corner b{ display:block; font:400 112px/1 "Bangers",sans-serif; color:#F5F3EE; margin-top:10px; }
+      #c1corner i{ display:block; font:400 46px/1 "Bangers",sans-serif; font-style:normal; color:#E63B2E; letter-spacing:.05em; }
+      #c1corner span{ display:block; font:400 32px/1.25 "Secular One",sans-serif; color:#F5F3EE; direction:rtl; }
+      #c1title{ left:30px; top:356px; width:1020px; text-align:center; font-size:124px; line-height:1.05; transform:rotate(-3deg); transform-origin:50% 60%; }
+      #c1title em{ font-style:normal; color:#E63B2E; }
+      /* the "starring" circle: put the story's villain/hero image in it (<img src="assets/hero.png">); the "?" is the no-image fallback */
+      #c1vil{ left:46px; top:540px; width:300px; height:300px; border-radius:50%; overflow:hidden; border:12px solid #111111; background:#F5F3EE; box-shadow:10px 10px 0 #E63B2E; }
+      #c1vil img{ position:absolute; left:0; top:0; width:100%; height:100%; object-fit:cover; }
+      #c1vil .ono{ left:0; top:14px; width:296px; text-align:center; font-size:250px; }
+      #c1lab{ left:30px; top:810px; transform:rotate(-4deg); font-size:40px; }
+      #c1burst{ left:742px; top:520px; width:320px; height:290px; transform:rotate(7deg); }
+      #c1burst .jag{ font-size:46px; }
+
+      /* ---- art: every panel is a real inked image; a placeholder never shows */
+      .art{ position:absolute; object-fit:cover; display:block; }
+      .dim{ filter:brightness(.28) contrast(1.2); }                       /* an unrevealed panel: the art, sunk in ink */
+      .sfx{ filter:drop-shadow(5px 0 0 #111111) drop-shadow(-5px 0 0 #111111) drop-shadow(0 5px 0 #111111) drop-shadow(0 -5px 0 #111111) drop-shadow(10px 12px 0 #111111); }
+      .sfx img{ display:block; width:100%; }
+      #tpan .art{ left:0; top:560px; width:1080px; height:1360px; }
+      #tbS::after{ content:""; position:absolute; inset:0; background:radial-gradient(ellipse 60% 55% at 50% 72%, rgba(245,243,238,.0), rgba(17,17,17,.45)); }
+      #tpan[data-bg="tbS"] #tbS, #tpan[data-bg="tbA"] #tbA{ opacity:1; }
+      .cell{ overflow:hidden; border:8px solid #111111; }
+      .stone .face{ border:none; border-radius:0; background:none; inset:12% 18% 30% 16%; }   /* the lettering sits on the tombstone art's blank face */
+      .stone .face b{ font-size:70px; } .stone .face span{ font-size:44px; }
+      .cell img{ position:absolute; left:0; top:0; width:100%; height:100%; object-fit:cover; }
+      .cell i{ position:absolute; left:14px; top:0; font:400 170px/1 "Bangers",sans-serif; font-style:normal; color:#F5F3EE; -webkit-text-stroke:10px #111111; paint-order:stroke fill; text-shadow:6px 6px 0 #E63B2E; }
+      .cell.on i{ color:#E63B2E; text-shadow:6px 6px 0 #111111; }
+      /* ---- demo pages (REPLACE with your own page styles) */
+      .slot b{ width:180px; text-align:center; font:400 44px/1 "Bangers",sans-serif; letter-spacing:.08em; color:#F5F3EE; background:#111111; border:5px solid #F5F3EE; padding:8px 0 4px; transform:rotate(-3deg); }
+      .slot::after{ content:""; position:absolute; inset:0; border:6px dashed rgba(245,243,238,.5); }
+      .glyph{ display:flex; align-items:center; justify-content:center; font-size:260px; }   /* a big placeholder glyph where panel art would go */
+      #moon{ left:90px; top:150px; width:250px; height:250px; border-radius:50%; }
+      #ground{ left:-160px; top:742px; width:1400px; height:700px; border-radius:50%; border:8px solid #111111; }
+      .stone{ transform-origin:50% 100%; }
+      .stone .half{ position:absolute; }
+      .dust{ width:300px; height:90px; border-radius:50%; background:#F5F3EE; border:6px solid #111111; opacity:0; }
+      #g1{ left:30px; top:180px; width:320px; text-align:center; font-size:820px; line-height:.86; transform-origin:50% 60%; }
+      #slash{ left:250px; top:610px; width:900px; height:22px; background:#F5F3EE; border-top:5px solid #111111; border-bottom:5px solid #111111; transform-origin:100% 50%; }
+      #cnt{ font-size:60px; }
+      #cnt .lat{ font-size:96px; color:#F5F3EE; -webkit-text-stroke:3px #111111; paint-order:stroke fill; }
+{{CAPSTYLE}}
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="{{DUR}}" data-width="1080" data-height="1920">
+      <div id="cam">
+        <div class="full" id="gut"></div>
+        <div id="stage">
+          <!-- DOM order: later pages first, so the page being left is always on top. One .pg per beat. -->
+
+          <!-- ===== PAGE 6 · the HOLD page: the last story page stays alive until the outro (speed lines + jitter run to DUR). REPLACE -->
+          <div class="pg" id="pg6">
+            <div class="pp bd-red" id="p6a" style="clip-path:polygon(440px 110px,1040px 110px,1040px 860px,412px 884px);">
+              <img class="art" src="assets/art/meanwhile.jpg" style="left:412px;top:110px;width:628px;height:774px;">   <!-- REPLACE: panel art -->
+              <div class="spd" style="left:412px;top:110px;width:628px;height:774px;opacity:.3;"></div>
+              <div class="nbox ink" style="right:70px;top:150px;font-size:52px;">ובינתיים...</div>                    <!-- REPLACE -->
+            </div>
+            <div class="pp bd-ink" id="p6b" style="clip-path:polygon(40px 110px,418px 110px,390px 884px,40px 884px);">
+              <img class="art" src="assets/art/crowd.jpg" style="left:40px;top:110px;width:378px;height:774px;">   <!-- REPLACE: panel art -->
+              <div class="jagw" id="p6j" style="left:80px;top:560px;width:300px;height:300px;"><div class="jag paper" style="font:400 150px/1 Bangers,sans-serif;padding-top:12px;"><span>?!</span></div></div>   <!-- REPLACE -->
+            </div>
+            <div class="nbox red hid" id="cnt" style="right:90px;top:640px;"><span class="lat" id="cntN">0</span> פעמים</div>   <!-- REPLACE: counter + unit -->
+          </div>
+
+          <!-- ===== PAGE 5 · a numbered splash page (what the grid dives into) -->
+          <div class="pg bd-redk" id="pg5">
+            <div class="ono hid" id="g1">1</div>
+            <div class="nbox ink hid" id="n5a" style="right:40px;top:122px;font-size:56px;">נקודה <span class="lat">#1</span></div>   <!-- REPLACE -->
+            <div class="nbox hid" id="n5b" style="right:40px;top:226px;font-size:52px;">משפט אחד שמסביר אותה</div>               <!-- REPLACE -->
+            <div class="pp bd-paper hid" id="p5r" style="clip-path:polygon(340px 362px,1040px 334px,1040px 888px,340px 914px);transform-origin:690px 620px;">
+              <img class="art" src="assets/art/splash.jpg" style="left:340px;top:334px;width:700px;height:580px;">   <!-- REPLACE: panel art -->
+              <div id="slash"></div>
+            </div>
+          </div>
+
+          <!-- ===== PAGE 4 · a numbered grid ("three things") -> the camera dives into panel 1 -->
+          <div class="pg" id="pg4">
+            <img class="art dim" src="assets/art/grid1.jpg" style="left:731px;top:110px;width:309px;height:490px;">
+            <img class="art dim" src="assets/art/grid2.jpg" style="left:390px;top:110px;width:319px;height:490px;">
+            <img class="art dim" src="assets/art/grid3.jpg" style="left:40px;top:110px;width:328px;height:490px;">
+            <div class="cell on hid" id="gc1" style="left:731px;top:110px;width:309px;height:490px;"><img src="assets/art/grid1.jpg"><i>1</i></div>   <!-- REPLACE: art -->
+            <div class="cell hid" id="gc2" style="left:390px;top:110px;width:319px;height:490px;"><img src="assets/art/grid2.jpg"><i>2</i></div>
+            <div class="cell hid" id="gc3" style="left:40px;top:110px;width:328px;height:490px;"><img src="assets/art/grid3.jpg"><i>3</i></div>
+          </div>
+
+          <!-- ===== PAGE 3 · the RIP stone: drops (THUD), cracks, splits, a burst rises behind it -->
+          <div class="pg" id="pg3">
+            <div class="pp bd-ink" id="p3y" style="clip-path:polygon(40px 110px,1040px 110px,1040px 938px,40px 956px);">
+              <img class="art" src="assets/art/rip.jpg" style="left:40px;top:110px;width:1000px;height:846px;">   <!-- REPLACE: panel art -->
+              <div class="hid" id="revA" style="left:250px;top:330px;width:580px;height:560px;"><img src="assets/art/reveal.png" style="position:absolute;left:0;top:0;width:580px;"></div>   <!-- REPLACE -->
+              <div class="stone hid" id="stA" style="left:370px;top:360px;width:340px;height:440px;">
+                <div class="half l"><img class="art" src="assets/art/tomb.png" style="left:0;top:0;width:340px;height:440px;object-fit:fill;"><div class="face"><b>R.I.P.</b><span>הדרך<br>הישנה</span></div></div>   <!-- REPLACE: both halves say the same -->
+                <div class="half r"><img class="art" src="assets/art/tomb.png" style="left:0;top:0;width:340px;height:440px;object-fit:fill;"><div class="face"><b>R.I.P.</b><span>הדרך<br>הישנה</span></div></div>
+                <svg class="crk" viewBox="0 0 100 100" preserveAspectRatio="none"><polyline pathLength="100" points="52,0 44,18 58,34 46,52 60,70 48,86 55,100"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== PAGE 2 · the three-panel gag: empty slots first (35% paper), then one panel slams in per clause -->
+          <div class="pg" id="pg2">
+            <!-- unrevealed panels: the same art sunk in ink, until each one slams in -->
+            <div class="pp" style="clip-path:polygon(731px 110px,1040px 110px,1040px 800px,704px 800px);"><img class="art dim" src="assets/art/gag1.jpg" style="left:704px;top:110px;width:336px;height:690px;"></div>
+            <div class="pp" style="clip-path:polygon(399px 110px,709px 110px,682px 800px,372px 800px);"><img class="art dim" src="assets/art/gag2.jpg" style="left:372px;top:110px;width:337px;height:690px;"></div>
+            <div class="pp" style="clip-path:polygon(40px 110px,377px 110px,350px 800px,40px 800px);"><img class="art dim" src="assets/art/gag3.jpg" style="left:40px;top:110px;width:337px;height:690px;"></div>
+            <div class="pp bd-red hid" id="p2a" style="clip-path:polygon(731px 110px,1040px 110px,1040px 800px,704px 800px);transform-origin:872px 455px;">
+              <img class="art" src="assets/art/gag1.jpg" style="left:704px;top:110px;width:336px;height:690px;">   <!-- REPLACE: panel art -->
+              <div class="sb" style="left:750px;top:150px;width:250px;">משהו<br>קורה!</div>   <!-- REPLACE -->
+              <div class="nbox" style="left:770px;top:722px;font-size:40px;">קודם</div>      <!-- REPLACE -->
+            </div>
+            <div class="pp bd-ink hid" id="p2b" style="clip-path:polygon(399px 110px,709px 110px,682px 800px,372px 800px);transform-origin:540px 455px;">
+              <img class="art" src="assets/art/gag2.jpg" style="left:372px;top:110px;width:337px;height:690px;">   <!-- REPLACE: panel art -->
+              <div class="jagw" style="left:410px;top:150px;width:280px;height:200px;"><div class="jag" style="font-size:44px;"><span>ואז<br>זה!</span></div></div>   <!-- REPLACE -->
+              <div class="nbox" style="left:430px;top:722px;font-size:40px;">אחר כך</div>   <!-- REPLACE -->
+            </div>
+            <div class="pp bd-paper hid" id="p2c" style="clip-path:polygon(40px 110px,377px 110px,350px 800px,40px 800px);transform-origin:200px 455px;">
+              <img class="art" src="assets/art/gag3.jpg" style="left:40px;top:110px;width:337px;height:690px;">   <!-- REPLACE: panel art -->
+              <div class="sb" style="left:80px;top:150px;width:220px;font-family:Bangers,sans-serif;font-size:64px;letter-spacing:.1em;"><span class="hid" id="dt1">.</span><span class="hid" id="dt2">.</span><span class="hid" id="dt3">.</span></div>
+              <div class="nbox" style="left:100px;top:722px;font-size:40px;">ובסוף</div>   <!-- REPLACE -->
+            </div>
+          </div>
+
+          <!-- ===== PAGE 1 · the cover (frame 0 = the thumbnail) -->
+          <div class="pg" id="pg1">
+            <div id="c1art"><img class="art" id="c1rays" src="assets/art/cover.jpg"></div>   <!-- REPLACE: the cover art -->
+            <div id="c1shade"></div>
+            <div class="ono xr" id="c1mast">TRUE STORY</div>                          <!-- REPLACE: masthead, Latin only (Bangers), ≤ 10 letters -->
+            <div id="c1corner"><b>#1</b><i>ISSUE</i><span>גיליון ראשון</span></div>   <!-- REPLACE -->
+            <div class="ono he" id="c1title">כותרת <em>הגיליון</em></div>              <!-- REPLACE: the hook, topic word in <em>, ≤ 1040px wide -->
+            <div id="c1vil"><img src="assets/art/star.jpg"></div>                              <!-- REPLACE: the star of the issue -->
+            <div class="nbox ink" id="c1lab">הכוכב של הגיליון</div>                   <!-- REPLACE -->
+            <div class="jagw" id="c1burst"><div class="jag paper"><span>מה<br>קורה<br>כאן?</span></div></div>   <!-- REPLACE: the teaser -->
+          </div>
+
+          <!-- ===== THE TWIN: panel paper + clip layer -->
+          <div id="tpan" data-bg="tbP">
+            <div class="bd-paper" id="tbP"></div>
+            <div id="tbS"><img class="art" src="assets/art/studio.jpg"></div>   <!-- REPLACE: his world, inked -->
+            <div id="tbA"><img class="art" src="assets/art/action.jpg"></div>
+            <div class="bd-red" id="tbR"></div>
+            <div class="rays" id="tbK" style="--rx:760px;--ry:1250px;background-color:#E63B2E;"></div>
+          </div>
+          <!-- ===== FXU: spawns that fly from his hand to the story tier. Under the twin, so the flight passes BEHIND his head, never over his face -->
+          <div id="fxu">
+            <div class="btn hid" id="tag1" style="left:560px;top:560px;width:240px;" data-h="78">WOW!</div>             <!-- REPLACE: spawned from his hand -->
+          </div>
+          <div id="twc">
+            <div id="twin">
+              <video id="pv" class="clip" src="assets/presenter.webm" muted playsinline data-start="0" data-duration="{{DUR}}" data-track-index="1"></video>
+            </div>
+          </div>
+
+          <!-- ===== FX: things that break the panels (spawns, onomatopoeia, boxes). Each id is used once. -->
+          <div id="fx">
+            <div class="sfx hid" id="oPow" style="left:430px;top:380px;width:420px;"><img src="assets/art/sfx_pow.png"></div>   <!-- REPLACE: SFX art -->
+            <div class="sfx hid" id="oKrak" style="left:70px;top:220px;width:520px;"><img src="assets/art/sfx_krak.png"></div>
+            <div class="ono he red hid" id="oNew" style="left:560px;top:130px;font-size:170px;">חדש!</div>             <!-- REPLACE -->
+            <div class="sfx hid" id="oSlash" style="left:300px;top:420px;width:620px;"><img src="assets/art/sfx_slash.png"></div>
+            <div class="ono xr hid" id="oQ" style="left:400px;top:330px;font-size:480px;line-height:.9;">?</div>
+            <div class="sfx hid" id="oZoom" style="left:470px;top:170px;width:540px;"><img src="assets/art/sfx_zoom.png"></div>   <!-- REPLACE -->
+            <div class="nbox ink hid" id="tbc" style="left:56px;top:1736px;font-size:46px;">המשך יבוא...</div>        <!-- REPLACE: the outro line -->
+          </div>
+
+          <div id="hdr"><span><b>{{HEADER}}</b></span><span>ISSUE #1</span></div>
+          <div id="whip"></div>
+        </div>
+        <div class="full" id="flash"></div>
+        <div class="full" id="grain"></div>
+      </div>
+      <div id="caps"></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      // entrances never pre-render their from-state (never patch tl.fromTo/tl.from: the renderer hangs)
+      const ft = (s, f, t, p) => {
+        const to = { immediateRender: false, ...t };
+        if (f.opacity !== undefined && to.opacity === undefined && !to.keyframes) to.opacity = f.opacity;
+        return tl.fromTo(s, f, to, p);
+      };
+      const DUR = {{DUR}};
+      let seed = 59; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+      const HANDS = {{HANDS}};
+{{LOOKJS}}
+
+      // ===== panels (quads TL,TR,BR,BL) and framings. Slant each top edge 20-70px; keep s >= 0.95.
+      const Q1 = [[40, 1130], [1040, 1060], [1040, 1880], [40, 1880]], TAB1 = [420, 960, 600];   // cover: his head breaks out over the cover art
+      const Q2 = [[40, 830], [1040, 822], [1040, 1880], [40, 1880]];
+      const Q3 = [[40, 980], [1040, 962], [1040, 1880], [40, 1880]];
+      const Q4 = [[40, 652], [1040, 622], [1040, 1880], [40, 1880]];
+      const Q5 = [[40, 960], [1040, 920], [1040, 1880], [40, 1880]], TAB5 = [420, 960, 700];
+      // head tabs: his head always breaks out over the panel above, so a lean or a punch-in never crops his hair
+      const TAB2 = [420, 960, 640], TAB3 = [420, 960, 760], TAB4 = [420, 960, 560], TAB6 = [420, 960, 700];
+      const Q6 = [[40, 905], [1040, 928], [1040, 1880], [40, 1880]];
+      const F1 = F(1.12, 700, 1900), F2 = F(1.0, 790, 1910), F3 = F(0.95, 780, 1900), F4 = F(1.05, 720, 1910);
+      const F5 = F(1.0, 770, 1910), F5c = F(1.3, 690, 2140), F6 = F(1.0, 770, 1910);
+
+      // ===== beat times. REPLACE with your beats (audio/timing.json "starts"): one page per beat.
+      // The demo plays in the first ~10 s; PAGE 6 then holds until the outro, so any DUR from 15 s up works.
+      const B2 = 2.0, B3 = 4.2, B4 = 6.6, B5 = 7.6, B6 = 9.6;   // REPLACE
+      const OUT = Math.max(DUR - 1.6, B6 + 1);                   // "to be continued" lands 1.6 s before the end
+
+      // explicit t=0 state: the renderer seeks out of order, so nothing may rely on "not reached yet"
+      tl.set(".hid", { opacity: 0 }, 0);
+      tl.set(".pg:not(#pg1)", { opacity: 0, x: 0, scale: 1 }, 0);
+      tl.set(".half", { x: 0, y: 0, rotation: 0 }, 0);
+      tl.set(".crk", { opacity: 1 }, 0);
+      tl.set(".crk", { clipPath: "inset(0% 0% 100% 0%)" }, 0);
+      tl.set("#slash", { scaleX: 0, rotation: -24 }, 0);
+      tl.set("#whip", { opacity: 0 }, 0);
+      tl.set("#cntN", { textContent: "0" }, 0);
+
+      // ---------- ambient (runs to DUR)
+      tl.to("#cam", { x: 5, y: -4, rotation: 0.25, duration: 1.6, ease: "sine.inOut", repeat: Math.floor(DUR / 1.6), yoyo: true }, 0);
+      for (let k = 0; k < DUR; k += 0.1) tl.set("#grain", { backgroundPosition: `${Math.round(rnd() * 512)}px ${Math.round(rnd() * 512)}px` }, k);
+
+      // ===== PAGE 1 · COVER  0 – B2   helpers: stageTwin, panelBg, bubAt, drift, twos, shake
+      stageTwin(0, Q1, F1, TAB1);
+      panelBg(0, "#tbS");
+      bubAt(0, 40, 1050, 520);   // the bubble's right edge stays ~20px left of his face
+      drift(0.05, F(1.15, 700, 1900), B2 - 0.1);
+      twos("#c1burst", 0.1, B2, 7, 1.4);
+      shake(0.12, 8);
+      ft("#c1title", { scale: 1 }, { keyframes: [{ scale: 1.08, duration: 0.14, ease: "back.out(3)" }, { scale: 1.05, duration: 0.4, ease: "sine.inOut" }] }, 1.3);   // REPLACE t: the title inflates on its key word (boing)
+      ft("#c1rays", { scale: 1 }, { scale: 1.08, duration: B2, ease: "none" }, 0);
+
+      // ===== PAGE 2 · THREE-PANEL GAG  B2 – B3   helpers: turnPage (cover -> page 1 only), moveTwin, slam, spP (from his hand), ono
+      turnPage(B2, "#pg1", "#pg2", 0.4);
+      moveTwin(B2, Q2, F2, TAB2, 0.4);
+      panelBg(B2 + 0.22, "#tbA");
+      bubAt(B2 + 0.02, 40, 1040, 560);
+      slam("#p2a", B2 + 0.3);
+      spP("tag1", B2 + 0.55, F2, -4, B2 + 1.25);   // REPLACE t: pick a moment his hand is up (track/hands.json)
+      slam("#p2b", B2 + 1.0); ono("#oPow", B2 + 1.2, B2 + 1.75, -8);
+      slam("#p2c", B2 + 1.6);
+      [0, 0.18, 0.36].forEach((d, k) => tl.set(`#dt${k + 1}`, { opacity: 1 }, B2 + 1.75 + d));
+      drift(B2 + 0.45, F(1.03, 790, 1910), B3 - B2 - 0.5);
+
+      // ===== PAGE 3 · RIP STONE  B3 – B4   helpers: travel, dropIn, crack, split, flash
+      travel(B3, "#pg2", "#pg3");
+      moveTwin(B3, Q3, F3, TAB3);
+      panelBg(B3 + 0.17, "#tbS");
+      bubAt(B3 + 0.02, 40, 1080, 560);
+      dropIn("#stA", B3 + 0.2); shake(B3 + 0.43, 14);
+      crack("stA", B3 + 1.3);
+      split("stA", B3 + 1.6);
+      ono("#oKrak", B3 + 1.6, B4 - 0.3, -8); shake(B3 + 1.62, 16); flash(B3 + 1.6);
+      ft("#revA", { opacity: 0, scale: 0.2 }, { opacity: 1, scale: 1, duration: 0.2, ease: "back.out(2.5)" }, B3 + 1.62);
+      ono("#oNew", B3 + 1.85, B4, -4);
+      drift(B3 + 0.4, F(0.98, 780, 1900), B4 - B3 - 0.45);
+
+      // ===== PAGE 4 · GRID -> DIVE  B4 – B5   helpers: slam (cells), zoomInto
+      travel(B4, "#pg3", "#pg4");
+      moveTwin(B4, Q4, F4, TAB4);
+      panelBg(B4 + 0.17, "#tbA");
+      bubAt(B4 + 0.02, 40, 1000, 500);
+      ["#gc1", "#gc2", "#gc3"].forEach((c, k) => slam(c, B4 + 0.3 + k * 0.1, null, 0, 1.4));
+      ft("#gc1", { scale: 1 }, { scale: 1.08, duration: 0.12, yoyo: true, repeat: 1, ease: "power2.out" }, B4 + 0.65);
+      zoomInto(B5 - 0.34, "#pg4", "#pg5", 885, 355, 0.34, 7.5);
+      moveTwin(B5 - 0.34, Q5, F5, TAB5, 0.36);   // his panel re-shapes while the page dives behind him; never collapse it over his face
+
+      // ===== PAGE 5 · SPLASH  B5 – B6   helpers: the giant numeral, narrator boxes, slash, the record-scratch punch-in (F 1.3 + head tab)
+      panelBg(B5 - 0.1, "#tbS");
+      bubAt(B5 - 0.1, 40, 1040, 560);
+      ft("#g1", { opacity: 0, scale: 2.6 }, { opacity: 1, scale: 1, duration: 0.16, ease: "power4.out" }, B5 + 0.02);
+      twos("#g1", B5 + 0.2, B6, 0, 0.8);
+      shake(B5 + 0.04, 16);
+      slam("#n5a", B5 + 0.1, null, -2);
+      slam("#p5r", B5 + 0.2, null, 0, 1.12);
+      slam("#n5b", B5 + 0.4, null, 1);
+      ft("#slash", { scaleX: 0, rotation: -24 }, { scaleX: 1, rotation: -24, duration: 0.12, ease: "power3.out" }, B5 + 0.7);
+      ono("#oSlash", B5 + 0.72, B5 + 1.2, -12); shake(B5 + 0.72, 18); flash(B5 + 0.72);
+      // record scratch: punch in on him, his head breaks the panel, a giant "?" (REPLACE t: on a question)
+      moveTwin(B5 + 1.3, Q5, F5c, TAB5, 0.14, "power3.out");
+      bubAt(B5 + 1.3, 40, 1080, 400);
+      ono("#oQ", B5 + 1.34, B6 - 0.1, 6);
+      moveTwin(B6 - 0.24, Q5, F5, TAB5, 0.2, "power3.inOut");
+
+      // ===== PAGE 6 · HOLD  B6 – DUR   helpers: run (speed lines), count, spP again, twos to DUR, the outro
+      travel(B6, "#pg5", "#pg6");
+      moveTwin(B6, Q6, F6, TAB6);
+      panelBg(B6 + 0.17, "#tbS");
+      bubAt(B6 + 0.02, 40, 1040, 560);
+      run("#pg6 .spd", B6, DUR - B6, (DUR - B6) * 300);
+      ono("#oZoom", B6 + 0.4, B6 + 1.3, -8);
+      slam("#cnt", B6 + 0.5, null, -2);
+      count("#cntN", B6 + 0.6, 1.0, 1000, fmtN);   // REPLACE: target number
+      twos("#cnt", B6 + 1.7, DUR, -2, 1.2);
+      twos("#p6j", B6 + 0.2, DUR, -6, 1.6);
+      drift(B6 + 0.4, F(1.05, 770, 1910), DUR - B6 - 0.45);
+      // the ending: "to be continued..." like an issue
+      slam("#tbc", OUT, null, -2);
+
+      // ---------- captions: speech bubbles (one bubble per chunk, tail to his mouth; move the zone with bubAt)
+      const KEY = new Set([]);     // REPLACE: key words, red + bigger
+      const SKIP = new Set([]);    // a chunk starting with one of these gets no bubble (the cover title already says it)
+      const BURST = new Set([]);   // a chunk starting with one of these becomes a jagged red burst (quotes, screams)
+      const caps = {{CAPS}};
+      const box = document.getElementById("caps");
+      caps.forEach((chunk, i) => {
+        const d = document.createElement("div"); d.className = "cap" + (BURST.has(chunk[0][0]) ? " burst" : ""); d.id = "cap" + i;
+        const bb = document.createElement("div"); bb.className = "bb"; d.appendChild(bb);
+        chunk.forEach(([w], j) => { const s = document.createElement("span"); s.className = "w" + (/^[\x00-\x7F×]+$/.test(w) ? " lat" : "") + (KEY.has(w) ? " key" : ""); s.id = `cw${i}_${j}`; s.textContent = w; bb.appendChild(s); });
+        box.appendChild(d);
+        tl.set(d, { opacity: 0 }, 0);
+        if (SKIP.has(chunk[0][0])) return;
+        const start = chunk[0][1], end = i + 1 < caps.length ? Math.min(caps[i + 1][0][1], chunk[chunk.length - 1][1] + 1.2) : DUR;
+        ft(d, { opacity: 1, scale: 0.55 }, { opacity: 1, scale: 1, duration: 0.16, ease: "back.out(2.6)" }, start - 0.04);   // pops in solid, never see-through
+        chunk.forEach(([w, s], j) => { const nx = j + 1 < chunk.length ? chunk[j + 1][1] : end; tl.set(`#cw${i}_${j}`, { attr: { "data-on": "1" } }, s); tl.set(`#cw${i}_${j}`, { attr: { "data-on": "0" } }, nx); });
+        if (i + 1 < caps.length) tl.set(d, { opacity: 0 }, end - 0.06);   // gone before the next bubble pops (it starts at -0.04)
+      });
+      tl.set({}, {}, DUR);
+      window.__timelines["main"] = tl;
+
+      /* mix.py cues for this demo (composition clock; every ono() gets a sound, every travel() a whoosh). REPLACE with yours:
+         ("punch", 0.12), ("boing", 1.3), ("flip", B2), ("slap", B2+0.3), ("swipe", B2+0.55), ("pop", B2+0.8), ("slap", B2+1.0), ("punch", B2+1.2),
+         ("slap", B2+1.6), *[("tick", B2+1.75+k*0.18) for k in range(3)], ("punch", B2+1.85),
+         ("whoosh", B3), ("taiko", B3+0.43), ("crack", B3+1.3), ("punch", B3+1.6), ("rip", B3+1.62), ("gasp", B3+1.85),
+         ("whoosh", B4), *[("tick", B4+0.3+k*0.1) for k in range(3)], ("whoosh", B5-0.34), ("taiko", B5+0.02), ("whip", B5+0.7), ("punch", B5+0.72),
+         ("scratch", B5+1.3), ("whoosh", B6), ("swipe", B6+0.4), ("pop", B6+0.5), *[("count", B6+0.6+k*0.25) for k in range(4)], ("flip", END) */   // in mix.py: B2..B6 = the values above, END = DUR - 1.6 (OUT is taken there: it is the output path)
+    </script>
+  </body>
+</html>

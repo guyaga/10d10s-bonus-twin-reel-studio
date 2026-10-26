@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="he">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    {{FONTS}}
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      *{margin:0;padding:0;box-sizing:border-box;}
+      :root{ --ink:#111111; --paper:#F5F3EE; --red:#E63B2E; }
+      html,body{ width:1080px; height:1920px; overflow:hidden; background:#111111; }
+      #root{ position:relative; width:1080px; height:1920px; overflow:hidden; background:#111111; }
+      #cam{ position:absolute; inset:-40px; transform-origin:50% 45%; }
+      #cam > *{ position:absolute; }
+      .full{ left:40px; top:40px; width:1080px; height:1920px; }
+      #flash{ background:#fff; opacity:0; }
+      #grain{ background:url(assets/grain.png); mix-blend-mode:overlay; opacity:.16; pointer-events:none; }
+{{LOOKCSS}}
+      /* ---- frame 0 (the thumbnail): the cover is visible from CSS, never from a t=0 set */
+      #tpan{ clip-path:polygon(40px 1130px, 540px 1095px, 540px 1095px, 540px 1095px, 540px 1095px, 1040px 1060px, 1040px 1880px, 40px 1880px); }
+      #twc{ clip-path:polygon(40px 1130px, 380px 1106.2px, 380px 830px, 740px 830px, 740px 1081px, 1040px 1060px, 1040px 1880px, 40px 1880px); }
+      #twin{ transform:translate(-515.2px, 746.4px) scale(1.12); }
+            .pg:not(#pg1){ opacity:0; }
+
+      /* ---- cover */
+      #c1rays{ left:-500px; top:-100px; width:2120px; height:2200px; --rx:1060px; --ry:1080px; opacity:.9;
+        -webkit-mask-image:radial-gradient(circle at 1060px 1080px, transparent 170px, #000 420px); }
+      #c1mast{ left:40px; top:104px; width:780px; text-align:center; font-size:158px; transform:rotate(-3deg); }
+      #c1corner{ left:842px; top:112px; width:198px; height:226px; background:#111111; border:6px solid #F5F3EE; box-shadow:8px 8px 0 #111111; text-align:center; direction:ltr; transform:rotate(2deg); }
+      #c1corner b{ display:block; font:400 112px/1 "Bangers",sans-serif; color:#F5F3EE; margin-top:10px; }
+      #c1corner i{ display:block; font:400 46px/1 "Bangers",sans-serif; font-style:normal; color:#E63B2E; letter-spacing:.05em; }
+      #c1corner span{ display:block; font:400 32px/1.25 "Secular One",sans-serif; color:#F5F3EE; direction:rtl; }
+      #c1title{ left:30px; top:356px; width:1020px; text-align:center; font-size:124px; line-height:1.05; transform:rotate(-3deg); transform-origin:50% 60%; }
+      #c1title em{ font-style:normal; color:#E63B2E; }
+      #c1vil{ left:46px; top:520px; width:320px; height:320px; border-radius:50%; overflow:hidden; border:12px solid #111111; background:#F5F3EE; box-shadow:10px 10px 0 #111111; }
+      #c1vil img{ position:absolute; left:-20px; top:-12px; width:360px; height:482px; object-fit:cover; }
+      #c1lab{ left:30px; top:810px; transform:rotate(-4deg); font-size:40px; }
+      #c1burst{ left:742px; top:520px; width:320px; height:290px; transform:rotate(7deg); }
+      #c1burst .jag{ font-size:46px; }
+
+      /* ---- page 2 */
+      .prof{ background:#F5F3EE; border-top:6px solid #111111; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+      .prof b{ font:400 46px/1 "Bangers",sans-serif; letter-spacing:.04em; color:#111111; direction:ltr; }
+      .prof span{ font:400 34px/1.2 "Secular One",sans-serif; color:#E63B2E; direction:rtl; }
+      /* ---- page 3 */
+      .p3n{ font-size:40px; }
+      /* ---- page 4 */
+      #p4l{ background-color:#F5F3EE; background-image:repeating-linear-gradient(180deg, transparent 0 46px, rgba(17,17,17,.55) 46px 50px); }
+      #lens .lg{ position:absolute; left:0; top:0; width:280px; height:280px; border-radius:50%; overflow:hidden; border:14px solid #111111; background:#F5F3EE; box-shadow:8px 8px 0 rgba(17,17,17,.6); }
+      #lens .lg img{ position:absolute; left:-50px; top:-65px; width:314px; height:404px; object-fit:cover; transform:scale(1.9); transform-origin:176px 191px; }
+      #lens .lg i{ position:absolute; left:40px; top:30px; width:70px; height:110px; border-radius:50%; border-left:12px solid rgba(245,243,238,.85); transform:rotate(25deg); }
+      #lens .lh{ position:absolute; left:226px; top:236px; width:150px; height:44px; background:#111111; border-radius:10px; transform:rotate(45deg); transform-origin:0 50%; }
+      /* ---- page 5 */
+      #g1{ left:30px; top:180px; width:320px; text-align:center; font-size:820px; line-height:.86; transform-origin:50% 60%; }
+      #slash{ left:250px; top:610px; width:900px; height:22px; background:#F5F3EE; border-top:5px solid #111111; border-bottom:5px solid #111111; transform-origin:100% 50%; }
+      /* ---- page 6 */
+      #moon{ left:90px; top:150px; width:250px; height:250px; border-radius:50%; }
+      #ground{ left:-160px; top:742px; width:1400px; height:700px; border-radius:50%; border:8px solid #111111; }
+      .stone{ transform-origin:50% 100%; }
+      .stone .half{ position:absolute; }
+      .dust{ width:300px; height:90px; border-radius:50%; background:#F5F3EE; border:6px solid #111111; opacity:0; }
+      .card{ background:#F5F3EE; border:8px solid #111111; box-shadow:12px 12px 0 #E63B2E; overflow:hidden; }
+      .card .th{ left:auto; right:0; top:0; width:300px; height:214px; overflow:hidden; border-left:8px solid #111111; }
+      .card .th img{ width:100%; height:100%; object-fit:cover; object-position:50% 28%; }
+      .card .tt{ right:330px; left:auto; top:18px; font:400 54px/1.05 "Secular One",sans-serif; color:#111111; direction:rtl; white-space:nowrap; }
+      .card .vw{ right:330px; left:auto; top:96px; display:flex; align-items:baseline; gap:16px; direction:rtl; }
+      .card .vw span{ font:400 40px/1 "Secular One",sans-serif; color:#111111; }
+      .card .vw b{ font:400 92px/1 "Bangers",sans-serif; color:#E63B2E; -webkit-text-stroke:3px #111111; paint-order:stroke fill; letter-spacing:.03em; direction:ltr; }
+      /* ---- page 7 */
+      .p7n{ font-size:40px; }
+      #aib{ left:420px; top:380px; width:240px; height:200px; }
+      #aib .jag{ font:400 120px/1 "Bangers",sans-serif; letter-spacing:.04em; padding-top:10px; }
+{{CAPSTYLE}}
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="{{DUR}}" data-width="1080" data-height="1920">
+      <div id="cam">
+        <div class="full" id="gut"></div>
+        <div id="stage">
+
+          <!-- ===== PAGE 7: the best work faster with AI (DOM order: later pages first, so the page being left is always on top) -->
+          <div class="pg" id="pg7">
+            <div class="pp" id="p7f" style="clip-path:polygon(562px 110px,1040px 110px,1040px 884px,532px 884px);">
+              <img class="fill" src="assets/alivef.png" style="left:532px;top:110px;width:508px;height:774px;">
+              <div class="spd" style="left:532px;top:110px;width:508px;height:774px;opacity:.55;"></div>
+              <div class="nbox ink p7n" style="left:600px;top:800px;">מעצבת <span class="lat">+ AI</span></div>
+            </div>
+            <div class="pp" id="p7m" style="clip-path:polygon(40px 110px,540px 110px,510px 884px,40px 884px);">
+              <img class="fill" src="assets/alivem.png" style="left:40px;top:110px;width:500px;height:774px;">
+              <div class="spd" style="left:40px;top:110px;width:500px;height:774px;opacity:.55;"></div>
+              <div class="nbox ink p7n" style="left:70px;top:800px;">מושן דיזיינר <span class="lat">+ AI</span></div>
+            </div>
+          </div>
+
+          <!-- ===== PAGE 6: the graveyard (RIP stones crack open) -->
+          <div class="pg" id="pg6">
+            <div class="pp bd-ink" id="p6y" style="clip-path:polygon(40px 110px,1040px 110px,1040px 938px,40px 956px);">
+              <div class="bd-paper" id="moon"></div>
+              <div class="bd-red" id="ground"></div>
+              <div class="rev hid" id="revB" style="left:90px;top:300px;width:440px;height:520px;"><img src="assets/hand.png" style="left:50px;top:120px;width:340px;height:340px;transform:scaleX(-1);"></div>
+              <div class="stone hid" id="stB" style="left:150px;top:400px;width:320px;height:400px;">
+                <div class="half l"><div class="face"><b>R.I.P.</b><span>מעצבים</span></div></div>
+                <div class="half r"><div class="face"><b>R.I.P.</b><span>מעצבים</span></div></div>
+                <svg class="crk" viewBox="0 0 100 100" preserveAspectRatio="none"><polyline pathLength="100" points="52,0 44,18 58,34 46,52 60,70 48,86 55,100"/></svg>
+              </div>
+              <div class="rev hid" id="revA" style="left:520px;top:250px;width:460px;height:560px;"><img src="assets/hand.png" style="left:60px;top:130px;width:340px;height:340px;"></div>
+              <div class="stone hid" id="stA" style="left:580px;top:360px;width:340px;height:440px;">
+                <div class="half l"><div class="face"><b>R.I.P.</b><span>מושן<br>דיזיין</span></div></div>
+                <div class="half r"><div class="face"><b>R.I.P.</b><span>מושן<br>דיזיין</span></div></div>
+                <svg class="crk" viewBox="0 0 100 100" preserveAspectRatio="none"><polyline pathLength="100" points="52,0 44,18 58,34 46,52 60,70 48,86 55,100"/></svg>
+              </div>
+              <div class="dust" id="dustB" style="left:160px;top:760px;"></div>
+              <div class="dust" id="dustA" style="left:600px;top:760px;"></div>
+            </div>
+            <div class="card hid" id="card" style="left:110px;top:136px;width:860px;height:230px;">
+              <div class="th"><img src="assets/vm.png"></div>
+              <div class="tt">מעצבים מתו?!</div>
+              <div class="vw"><span>צפיות:</span><b id="views">0</b></div>
+            </div>
+          </div>
+
+          <!-- ===== PAGE 5: sign #1 splash -->
+          <div class="pg bd-redk" id="pg5">
+            <div class="ono hid" id="g1">1</div>
+            <div class="nbox ink hid" id="n5a" style="right:40px;top:122px;font-size:56px;">סימן <span class="lat">#1</span></div>
+            <div class="nbox hid" id="n5b" style="right:40px;top:226px;font-size:52px;">הוא תמיד "הורג" משהו</div>
+            <div class="pp hid" id="p5r" style="clip-path:polygon(340px 362px,1040px 334px,1040px 888px,340px 914px);transform-origin:690px 620px;">
+              <img class="fill" src="assets/reaper.png" style="left:340px;top:334px;width:700px;height:580px;">
+              <div id="slash"></div>
+            </div>
+          </div>
+
+          <!-- ===== PAGE 4: how to spot him -> six signs -->
+          <div class="pg" id="pg4">
+            <div class="pp" id="p4l" style="clip-path:polygon(40px 110px,1040px 110px,1040px 610px,40px 642px);">
+              <div class="mug" style="left:560px;top:150px;width:330px;height:420px;"><img src="assets/vm.png"><b class="plac">HYPE-01</b></div>
+              <div class="mug" style="left:180px;top:150px;width:330px;height:420px;"><img src="assets/vf.png"><b class="plac">HYPE-02</b></div>
+            </div>
+            <div class="cell on bd-red hid" id="g6c1" style="left:721px;top:110px;width:319px;height:239px;">1</div>
+            <div class="cell bd-paper hid" id="g6c2" style="left:381px;top:110px;width:319px;height:239px;">2</div>
+            <div class="cell bd-paper hid" id="g6c3" style="left:40px;top:110px;width:320px;height:239px;">3</div>
+            <div class="cell bd-paper hid" id="g6c4" style="left:721px;top:371px;width:319px;height:239px;">4</div>
+            <div class="cell bd-paper hid" id="g6c5" style="left:381px;top:371px;width:319px;height:239px;">5</div>
+            <div class="cell bd-paper hid" id="g6c6" style="left:40px;top:371px;width:320px;height:239px;">6</div>
+          </div>
+
+          <!-- ===== PAGE 3: the three-panel gag (scares / promises / teaches nothing) -->
+          <div class="pg" id="pg3">
+            <div class="pp bd-paper" style="clip-path:polygon(731px 110px,1040px 110px,1040px 800px,704px 800px);opacity:.35;"></div>
+            <div class="pp bd-paper" style="clip-path:polygon(399px 110px,709px 110px,682px 800px,372px 800px);opacity:.35;"></div>
+            <div class="pp bd-paper" style="clip-path:polygon(40px 110px,377px 110px,350px 800px,40px 800px);opacity:.35;"></div>
+            <div class="pp hid" id="p3a" style="clip-path:polygon(731px 110px,1040px 110px,1040px 800px,704px 800px);transform-origin:872px 455px;">
+              <img class="fill" src="assets/vm.png" style="left:704px;top:110px;width:336px;height:690px;">
+              <div class="jagw" style="left:722px;top:126px;width:310px;height:190px;"><div class="jag" style="font-size:40px;"><span>AI יחליף<br>אותך!</span></div></div>
+              <div class="nbox p3n" style="left:770px;top:722px;">מפחיד</div>
+            </div>
+            <div class="pp hid" id="p3b" style="clip-path:polygon(399px 110px,709px 110px,682px 800px,372px 800px);transform-origin:540px 455px;">
+              <img class="fill" src="assets/vf.png" style="left:372px;top:110px;width:337px;height:690px;">
+              <div class="sb" style="left:400px;top:130px;width:280px;">מיליון<br>בחודש!</div>
+              <div class="nbox p3n" style="left:420px;top:722px;">מבטיח הכל</div>
+            </div>
+            <div class="pp hid" id="p3c" style="clip-path:polygon(40px 110px,377px 110px,350px 800px,40px 800px);transform-origin:200px 455px;">
+              <img class="fill" src="assets/vblank.png" style="left:40px;top:110px;width:337px;height:690px;">
+              <div class="sb" style="left:80px;top:136px;width:220px;font-family:Bangers,sans-serif;font-size:64px;letter-spacing:.1em;"><span class="hid" id="dt1">.</span><span class="hid" id="dt2">.</span><span class="hid" id="dt3">.</span></div>
+              <div class="nbox p3n" style="left:90px;top:722px;">מלמד...</div>
+            </div>
+          </div>
+
+          <!-- ===== PAGE 2: you follow at least one -->
+          <div class="pg" id="pg2">
+            <div class="pp" id="p2a" style="clip-path:polygon(552px 110px,1040px 110px,1040px 812px,552px 812px);">
+              <img class="fill" src="assets/vm.png" style="left:552px;top:110px;width:488px;height:600px;object-position:50% 20%;">
+              <div class="prof" style="left:552px;top:704px;width:488px;height:108px;"><b>@AI.GURU.10X</b><span>2.4M עוקבים</span></div>
+            </div>
+            <div class="pp" id="p2b" style="clip-path:polygon(40px 110px,530px 110px,530px 812px,40px 812px);">
+              <img class="fill" src="assets/vf.png" style="left:40px;top:110px;width:490px;height:600px;object-position:50% 20%;">
+              <div class="prof" style="left:40px;top:704px;width:490px;height:108px;"><b>@AI.QUEEN.PRO</b><span>1.9M עוקבים</span></div>
+            </div>
+          </div>
+
+          <!-- ===== PAGE 1: the cover (frame 0 = thumbnail) -->
+          <div class="pg bd-red" id="pg1">
+            <div class="rays" id="c1rays"></div>
+            <div class="ono xr" id="c1mast">OVER-HYPED</div>
+            <div id="c1corner"><b>#1</b><i>6 SIGNS</i><span>6 סימנים</span></div>
+            <div class="ono he" id="c1title">משפיען <em>AI</em> מוגזם</div>
+            <div id="c1vil"><img src="assets/vm.png"></div>
+            <div class="nbox ink" id="c1lab">הנבל של הגיליון</div>
+            <div class="jagw" id="c1burst"><div class="jag paper"><span>איך<br>מזהים<br>אותו?</span></div></div>
+          </div>
+
+          <!-- ===== THE TWIN: panel paper + clip layer -->
+          <div id="tpan" data-bg="tbP">
+            <div class="bd-paper" id="tbP"></div>
+            <div class="bd-red" id="tbR"></div>
+            <div class="rays" id="tbK" style="--rx:760px;--ry:1250px;background-color:#E63B2E;"></div>
+          </div>
+          <div id="twc">
+            <div id="twin">
+              <video id="pv" class="clip" src="assets/presenter.webm" muted playsinline data-start="0" data-duration="{{DUR}}" data-track-index="1"></video>
+            </div>
+          </div>
+
+          <!-- ===== FX: things that break the panels (spawns, onomatopoeia, boxes) -->
+          <div id="fx" style="left:0;top:0;width:1080px;height:1920px;">
+            <div class="btn hid" id="fol1" style="position:absolute;left:740px;top:600px;width:260px;" data-h="78">FOLLOWING</div>
+            <div class="btn hid" id="fol2" style="position:absolute;left:150px;top:600px;width:260px;" data-h="78">FOLLOWING</div>
+            <div class="ono hid" id="oClick" style="position:absolute;left:560px;top:470px;font-size:84px;">CLICK!</div>
+            <div class="ono red hid" id="oPlus" style="position:absolute;left:440px;top:330px;font-size:150px;">+1</div>
+            <div class="ono red hid" id="oA" style="position:absolute;left:700px;top:540px;font-size:104px;">AAAH!</div>
+            <div class="ono hid" id="oB" style="position:absolute;left:330px;top:560px;font-size:82px;">KA-CHING!</div>
+            <div class="ono he red hid" id="oC" style="position:absolute;left:52px;top:520px;font-size:118px;">כלום!</div>
+            <div class="hid" id="lens" style="position:absolute;left:590px;top:195px;width:280px;height:280px;" data-h="280"><div class="lg"><img src="assets/vm.png"><i></i></div><div class="lh"></div></div>
+            <div class="ono red hid" id="oGot" style="position:absolute;left:250px;top:430px;font-size:110px;">GOTCHA!</div>
+            <div class="ono hid" id="oSlash" style="position:absolute;left:380px;top:420px;font-size:130px;">SLASH!</div>
+            <div class="ono hid" id="oThudA" style="position:absolute;left:640px;top:800px;font-size:92px;">THUD!</div>
+            <div class="ono hid" id="oThudB" style="position:absolute;left:150px;top:810px;font-size:92px;">THUD!</div>
+            <div class="ono xr hid" id="oQ" style="position:absolute;left:400px;top:150px;font-size:560px;line-height:.9;">?</div>
+            <div class="ono hid" id="oKrak" style="position:absolute;left:380px;top:300px;font-size:120px;">KRAK!</div>
+            <div class="ono he red hid" id="oAlive" style="position:absolute;left:220px;top:120px;font-size:210px;">חיים!</div>
+            <div class="ono red hid" id="oZoom" style="position:absolute;left:330px;top:650px;font-size:140px;">ZOOM!</div>
+            <div class="jagw hid" id="aib" style="position:absolute;left:420px;top:380px;width:240px;" data-h="200"><div class="jag"><span>AI</span></div></div>
+            <div class="nbox ink hid" id="tbc" style="position:absolute;left:56px;top:1736px;font-size:46px;">המשך יבוא... סימן <span class="lat">#2</span></div>
+          </div>
+
+          <div id="hdr"><span><b>{{HEADER}}</b> · OVER-HYPED</span><span>ISSUE #1</span></div>
+          <div id="whip"></div>
+        </div>
+        <div class="full" id="flash"></div>
+        <div class="full" id="grain"></div>
+      </div>
+      <div id="caps"></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      // entrances never pre-render their from-state (never patch tl.fromTo/tl.from: the renderer hangs)
+      const ft = (s, f, t, p) => {
+        const to = { immediateRender: false, ...t };
+        if (f.opacity !== undefined && to.opacity === undefined && !to.keyframes) to.opacity = f.opacity;
+        return tl.fromTo(s, f, to, p);
+      };
+      const DUR = {{DUR}};
+      let seed = 59; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+      const HANDS = {{HANDS}};
+{{LOOKJS}}
+
+      // ===== this reel's panels (quads TL,TR,BR,BL) and framings
+      const Q1 = [[40, 1130], [1040, 1060], [1040, 1880], [40, 1880]], TAB1 = [380, 740, 830];   // cover: his head breaks out over the cover art
+      const Q2 = [[40, 840], [1040, 872], [1040, 1880], [40, 1880]];
+      const Q3 = [[40, 830], [1040, 822], [1040, 1880], [40, 1880]];
+      const Q4 = [[40, 670], [1040, 632], [1040, 1880], [40, 1880]];
+      const Q5 = [[40, 960], [1040, 920], [1040, 1880], [40, 1880]];
+      const Q6 = [[40, 980], [1040, 962], [1040, 1880], [40, 1880]];
+      const Q7 = [[40, 905], [1040, 928], [1040, 1880], [40, 1880]];
+      const F1 = F(1.12, 560, 1900), F2 = F(1.0, 760, 1910), F3 = F(1.0, 790, 1910), F4 = F(1.05, 720, 1910);
+      const F5 = F(1.0, 770, 1910), F6 = F(0.95, 780, 1900), F6c = F(1.3, 690, 2140), TAB6 = [470, 910, 900], F7 = F(1.0, 770, 1910);
+
+      // explicit t=0 state: the renderer seeks out of order, so nothing may rely on "not reached yet"
+      tl.set(".hid", { opacity: 0 }, 0);
+      tl.set(".pg:not(#pg1)", { opacity: 0, x: 0, scale: 1 }, 0);
+      tl.set(".half", { x: 0, y: 0, rotation: 0 }, 0);
+      tl.set(".crk", { opacity: 1 }, 0);
+      tl.set(".crk", { clipPath: "inset(0% 0% 100% 0%)" }, 0);
+      tl.set(".dust", { opacity: 0 }, 0);
+      tl.set("#slash", { scaleX: 0, rotation: -24 }, 0);
+      tl.set("#whip", { opacity: 0 }, 0);
+
+      // ---------- ambient
+      tl.to("#cam", { x: 5, y: -4, rotation: 0.25, duration: 1.6, ease: "sine.inOut", repeat: Math.floor(DUR / 1.6), yoyo: true }, 0);
+      for (let k = 0; k < DUR; k += 0.1) tl.set("#grain", { backgroundPosition: `${Math.round(rnd() * 512)}px ${Math.round(rnd() * 512)}px` }, k);
+
+      // ===== PAGE 1 · COVER  0 – 2.1  "משפיען AI מוגזם"
+      stageTwin(0, Q1, F1, TAB1);
+      panelBg(0, "#tbP");
+      bubAt(0, 40, 1040, 550);
+      drift(0.05, F(1.15, 560, 1900), 2.0);
+      twos("#c1burst", 0.1, 2.08, 7, 1.4);
+      shake(0.12, 8);
+      ft("#c1title", { scale: 1 }, { keyframes: [{ scale: 1.1, duration: 0.14, ease: "back.out(3)" }, { scale: 1.06, duration: 0.4, ease: "sine.inOut" }] }, 1.54);   // "מוגזם": the title inflates
+      ft("#c1rays", { rotation: 0 }, { rotation: 8, duration: 2.1, ease: "none" }, 0);
+
+      // ===== PAGE 2 · 2.1 – 4.1  "אתם עוקבים לפחות אחרי אחד"
+      turnPage(2.08, "#pg1", "#pg2", 0.4);
+      moveTwin(2.08, Q2, F2, null, 0.4);
+      panelBg(2.3, "#tbR");
+      bubAt(2.1, 40, 1040, 550);
+      spP("fol1", 2.46, F2, -4, 4.06);
+      ono("#oClick", 2.78, 3.5, -10);
+      slam("#fol2", 3.06, 4.06, 3);
+      ono("#oPlus", 3.64, 4.06, 8);
+      drift(2.5, F(1.03, 760, 1910), 1.58);
+
+      // ===== PAGE 3 · 4.1 – 7.9  "הוא מפחיד אתכם, מבטיח לכם הכל, ולא מלמד אתכם כלום"
+      travel(4.08, "#pg2", "#pg3");
+      moveTwin(4.08, Q3, F3);
+      panelBg(4.25, "#tbP");
+      bubAt(4.1, 40, 1040, 580);
+      slam("#p3a", 4.26); ono("#oA", 4.42, 5.26, -8);
+      slam("#p3b", 5.32); ono("#oB", 5.56, 6.46, 6);
+      slam("#p3c", 6.5);
+      tl.set("#dt1", { opacity: 1 }, 6.9); tl.set("#dt2", { opacity: 1 }, 7.08); tl.set("#dt3", { opacity: 1 }, 7.26);   // "...": he teaches nothing
+      ono("#oC", 7.56, 7.9, -6);
+      drift(4.45, F(1.04, 790, 1910), 3.4);
+
+      // ===== PAGE 4 · 7.9 – 10.4  "ככה מזהים אותו. שישה סימנים."
+      travel(7.88, "#pg3", "#pg4");
+      moveTwin(7.88, Q4, F4);
+      panelBg(8.05, "#tbK");
+      bubAt(7.9, 40, 1010, 500);
+      spP("lens", 8.14, F4, -6, 9.1);
+      ono("#oGot", 8.84, 9.1, -10);
+      tl.set("#p4l", { opacity: 0 }, 9.1);
+      ["#g6c1", "#g6c2", "#g6c3", "#g6c4", "#g6c5", "#g6c6"].forEach((c, k) => slam(c, 9.14 + k * 0.07, null, 0, 1.4));
+      ft("#g6c1", { scale: 1 }, { scale: 1.08, duration: 0.12, yoyo: true, repeat: 1, ease: "power2.out" }, 9.6);
+      // dive into panel 1 -> it becomes the sign-1 page; his panel wipes down and back up
+      zoomInto(10.08, "#pg4", "#pg5", 880, 229, 0.34, 7.5);
+      moveTwin(10.08, Q5, F5, null, 0.36, "power4.inOut");   // his panel re-shapes while the page dives behind him
+      panelBg(10.3, "#tbP");
+      bubAt(10.3, 40, 1040, 560);
+
+      // ===== PAGE 5 · 10.4 – 12.9  "אחת: הוא כל הזמן 'הורג' משהו"
+      ft("#g1", { opacity: 0, scale: 2.6 }, { opacity: 1, scale: 1, duration: 0.16, ease: "power4.out" }, 10.42);
+      twos("#g1", 10.6, 12.86, 0, 0.8);
+      shake(10.44, 16);
+      slam("#n5a", 10.5, null, -2);
+      slam("#p5r", 10.62, null, 0, 1.12);
+      slam("#n5b", 10.92, null, 1);
+      ft("#slash", { scaleX: 0, rotation: -24 }, { scaleX: 1, rotation: -24, duration: 0.12, ease: "power3.out" }, 11.8);
+      ono("#oSlash", 11.82, 12.84, -12);
+      shake(11.82, 18); flash(11.82);
+      drift(10.7, F(1.04, 770, 1910), 2.1);
+
+      // ===== PAGE 6 · 12.9 – 19.1  "מושן דיזיין מת. מעצבים מתו. למה? כי פחד מביא צפיות. אבל המקצועות האלה חיים"
+      travel(12.86, "#pg5", "#pg6");
+      moveTwin(12.86, Q6, F6);
+      panelBg(13.0, "#tbR");
+      bubAt(12.88, 40, 1060, 570);
+      dropIn("#stA", 13.04); ono("#oThudA", 13.27, 14.3, -6); shake(13.27, 14);
+      ft("#dustA", { opacity: 0.95, scale: 0.3 }, { opacity: 0, scale: 1.5, duration: 0.45, ease: "power2.out" }, 13.26);
+      dropIn("#stB", 14.38); ono("#oThudB", 14.61, 15.5, 5); shake(14.61, 14);
+      ft("#dustB", { opacity: 0.95, scale: 0.3 }, { opacity: 0, scale: 1.5, duration: 0.45, ease: "power2.out" }, 14.6);
+      // "למה?" record-scratch: punch in on him, his head breaks the panel, a giant ?
+      moveTwin(15.6, Q6, F6c, TAB6, 0.14, "power3.out");
+      bubAt(15.6, 40, 1080, 430);
+      ono("#oQ", 15.64, 16.08, 6);
+      moveTwin(16.06, Q6, F6, null, 0.2, "power3.inOut");
+      bubAt(16.08, 40, 1060, 570);
+      // fear brings views
+      slam("#card", 16.12, 17.42, -2);
+      count("#views", 16.3, 1.0, 2431907, fmtN);
+      // ...but those professions are alive: crack, split, the burst rises
+      crack("stA", 17.88); crack("stB", 18.02);
+      split("stA", 18.34); split("stB", 18.4, 13);
+      ono("#oKrak", 18.34, 19.06, -8); shake(18.36, 16);
+      ft("#revA", { opacity: 0, scale: 0.2 }, { opacity: 1, scale: 1, duration: 0.2, ease: "back.out(2.5)" }, 18.36);
+      ft("#revB", { opacity: 0, scale: 0.2 }, { opacity: 1, scale: 1, duration: 0.2, ease: "back.out(2.5)" }, 18.42);
+      ft("#revA img", { y: 260 }, { y: 0, duration: 0.3, ease: "back.out(2)" }, 18.38);
+      ft("#revB img", { y: 260 }, { y: 0, duration: 0.3, ease: "back.out(2)" }, 18.44);
+      ono("#oAlive", 18.58, 19.1, -4);
+      drift(16.3, F(0.99, 780, 1900), 2.8);
+
+      // ===== PAGE 7 · 19.1 – 22.1  "והטובים בהם פשוט עובדים עם AI מהר יותר"
+      travel(19.12, "#pg6", "#pg7");
+      moveTwin(19.12, Q7, F7);
+      panelBg(19.3, "#tbP");
+      bubAt(19.14, 40, 1040, 560);
+      run("#pg7 .spd", 19.1, 3.0, 900);
+      ono("#oZoom", 20.3, 21.2, -8);
+      spP("aib", 20.84, F7, 6);
+      twos("#aib", 21.3, DUR, 6, 1.5);
+      ft("#pg7 .spd", { opacity: 0.55 }, { opacity: 1, duration: 0.2 }, 21.26); shake(21.26, 10);
+      slam("#tbc", 21.45, null, -2);
+      drift(19.5, F(1.05, 770, 1910), 2.6);
+
+      // ---------- captions: speech bubbles
+      const KEY = new Set(["כלום", "שישה", "הורג", "מת", "מתו", "חיים", "פחד", "צפיות", "הכל", "מהר"]);
+      const SKIP = new Set(["משפיען"]);          // a chunk starting with this word is already the cover title
+      const BURST = new Set(["מושן", "מעצבים"]); // quoted screams get the jagged bubble
+      const caps = {{CAPS}};
+      const box = document.getElementById("caps");
+      caps.forEach((chunk, i) => {
+        const d = document.createElement("div"); d.className = "cap" + (BURST.has(chunk[0][0]) ? " burst" : ""); d.id = "cap" + i;
+        const bb = document.createElement("div"); bb.className = "bb"; d.appendChild(bb);
+        chunk.forEach(([w], j) => { const s = document.createElement("span"); s.className = "w" + (/^[\x00-\x7F×]+$/.test(w) ? " lat" : "") + (KEY.has(w) ? " key" : ""); s.id = `cw${i}_${j}`; s.textContent = w; bb.appendChild(s); });
+        box.appendChild(d);
+        tl.set(d, { opacity: 0 }, 0);
+        if (SKIP.has(chunk[0][0])) return;
+        const start = chunk[0][1], end = i + 1 < caps.length ? Math.min(caps[i + 1][0][1], chunk[chunk.length - 1][1] + 1.2) : DUR;
+        ft(d, { opacity: 0, scale: 0.55 }, { opacity: 1, scale: 1, duration: 0.16, ease: "back.out(2.6)" }, start - 0.04);
+        chunk.forEach(([w, s], j) => { const nx = j + 1 < chunk.length ? chunk[j + 1][1] : end; tl.set(`#cw${i}_${j}`, { attr: { "data-on": "1" } }, s); tl.set(`#cw${i}_${j}`, { attr: { "data-on": "0" } }, nx); });
+        if (i + 1 < caps.length) tl.set(d, { opacity: 0 }, end - 0.02);
+      });
+      tl.set({}, {}, DUR);
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

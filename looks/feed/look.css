@@ -1,0 +1,108 @@
+/* ===== FEED look: the reel is a phone screen. Theme + reusable UI parts. =====
+   Coordinates: elements are direct children of #cam, whose box starts at -40px,
+   so cam coords = canvas coords + 40. All sizes below are for a 1080x1920 canvas. */
+:root{ --ink:#111111; --paper:#F5F3EE; --red:#E63B2E;
+  --redT:color-mix(in srgb, var(--red) 16%, transparent);
+  --ui:"Heebo",sans-serif; --mono:"Space Mono",monospace; }
+html,body,#root{ background:var(--ink); }
+#cam > *{ position:absolute; }
+.he{ direction:rtl; } .ltr{ direction:ltr; }
+.ov{ opacity:0; }
+
+/* --- phone chrome: status bar + app bar (always visible, so frame 0 has them) --- */
+#sbar{ left:40px; top:40px; width:1080px; height:84px; padding:0 64px; display:flex; align-items:center; justify-content:space-between; direction:ltr; color:var(--paper); font:600 36px/1 var(--ui); z-index:5; }
+#sbar .ic{ display:flex; gap:14px; align-items:center; }
+#sbar .bars{ display:flex; gap:5px; align-items:flex-end; height:26px; }
+#sbar .bars i{ display:block; width:7px; border-radius:2px; background:currentColor; }
+#sbar .batt{ position:relative; width:58px; height:28px; border:3px solid currentColor; border-radius:9px; opacity:.95; }
+#sbar .batt i{ position:absolute; left:3px; top:3px; bottom:3px; width:34px; border-radius:4px; background:currentColor; }
+#sbar .batt b{ position:absolute; right:-8px; top:7px; width:4px; height:9px; border-radius:2px; background:currentColor; }
+#abar{ left:40px; top:118px; width:1080px; height:80px; padding:0 56px; display:flex; align-items:center; justify-content:space-between; direction:rtl; color:var(--paper); }
+#abar .nm{ font:800 40px/1 var(--ui); letter-spacing:.02em; }
+#abar .bell{ position:relative; width:52px; height:52px; }
+#abar .bell i{ position:absolute; left:8px; top:6px; width:36px; height:34px; border:5px solid var(--paper); border-bottom:0; border-radius:18px 18px 4px 4px; }
+#abar .bell u{ position:absolute; left:4px; top:38px; width:44px; height:5px; border-radius:3px; background:var(--paper); }
+#abar .bell b{ position:absolute; right:-14px; top:-12px; min-width:40px; height:40px; padding:0 8px; border-radius:20px; background:var(--red); color:var(--paper); font:800 26px/40px var(--ui); text-align:center; }
+#homebar{ left:400px; top:1922px; width:280px; height:10px; border-radius:5px; background:rgba(245,243,238,.55); }
+
+/* --- the call bubble: #callclip clips the twin (clip-path inset round), #ring draws its chrome --- */
+#callclip{ left:40px; top:40px; width:1080px; height:1920px; overflow:hidden; }
+#callbg{ position:absolute; left:0; top:0; width:1080px; height:1920px; background:radial-gradient(ellipse 70% 45% at 50% 38%, var(--paper) 40%, color-mix(in srgb, var(--paper) 86%, var(--ink)) 100%); }
+#twin{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:0 0; }
+#twin > *{ position:absolute; left:0; top:0; width:1920px; height:1080px; }
+#ring{ border-radius:56px; box-shadow:0 0 0 3px rgba(245,243,238,.28), 0 40px 90px rgba(17,17,17,.55); }
+#rtag{ position:absolute; top:22px; right:22px; display:flex; align-items:center; gap:10px; padding:8px 18px 8px 16px; border-radius:30px; background:rgba(17,17,17,.72); color:var(--paper); font:700 26px/1 var(--mono); direction:ltr; }
+#rtag i{ display:block; width:14px; height:14px; border-radius:50%; background:var(--red); }
+
+/* --- cards and UI atoms --- */
+.card2{ background:var(--paper); color:var(--ink); border-radius:44px; overflow:hidden; box-shadow:0 30px 70px rgba(17,17,17,.5); }
+.card2 > *{ position:absolute; }
+.pill{ display:inline-flex; align-items:center; gap:10px; padding:6px 22px 10px; border-radius:40px; font:800 34px/1.2 var(--ui); white-space:nowrap; }
+.pill.red{ background:var(--red); color:var(--paper); } .pill.ink{ background:var(--ink); color:var(--paper); } .pill.ghost{ background:rgba(245,243,238,.12); color:var(--paper); }
+.dot{ display:inline-block; width:16px; height:16px; border-radius:50%; background:currentColor; }
+.tri{ display:inline-block; width:0; height:0; border-left:13px solid transparent; border-right:13px solid transparent; border-bottom:20px solid currentColor; margin-bottom:4px; }
+.av{ display:flex; align-items:center; justify-content:center; border-radius:50%; font:800 30px/1 var(--ui); direction:ltr; }
+
+/* notification banner (iOS style): .nb > .ico + .tx(.tt + .bd) + .tm */
+.nb{ width:1020px; height:176px; border-radius:42px; background:rgba(245,243,238,.97); color:var(--ink); box-shadow:0 24px 60px rgba(17,17,17,.5); direction:rtl; }
+.nb > *{ position:absolute; }
+.nb .ico{ right:30px; top:34px; width:108px; height:108px; border-radius:26px; background:var(--red); color:var(--paper); font:900 68px/108px var(--ui); text-align:center; }
+.nb .ico.av{ border-radius:54px; background:var(--ink); font-size:40px; }
+.nb .tt{ right:166px; top:30px; font:800 44px/1.15 var(--ui); white-space:nowrap; }
+.nb .bd{ right:166px; top:92px; font:500 40px/1.15 var(--ui); white-space:nowrap; color:rgba(17,17,17,.75); }
+.nb .tm{ left:34px; top:34px; font:500 30px/1 var(--ui); color:rgba(17,17,17,.5); }
+
+/* auction bid rows */
+.bid{ height:76px; border-radius:24px; background:rgba(245,243,238,.09); color:var(--paper); direction:rtl; }
+.bid > *{ position:absolute; }
+.bid .av{ right:12px; top:10px; width:56px; height:56px; background:rgba(245,243,238,.18); font-size:24px; }
+.bid .lb{ right:84px; top:18px; font:500 32px/1.2 var(--ui); opacity:.75; }
+.bid .pr{ left:22px; top:16px; font:700 38px/1.1 var(--mono); direction:ltr; }
+.bid.top{ background:var(--red); } .bid.top .lb{ opacity:1; }
+
+/* chat bubbles (RTL app: incoming on the right) */
+.msg{ max-width:700px; padding:16px 30px 22px; border-radius:36px 36px 10px 36px; background:var(--paper); color:var(--ink); font:500 42px/1.25 var(--ui); direction:rtl; white-space:nowrap; box-shadow:0 10px 24px rgba(17,17,17,.25); }
+.msg small{ display:block; font:700 28px/1.3 var(--ui); color:var(--red); }
+
+/* story mode */
+.sseg{ height:8px; border-radius:4px; background:rgba(17,17,17,.22); overflow:hidden; }
+.sseg > i{ position:absolute; left:0; top:0; height:8px; border-radius:4px; background:var(--ink); }
+.stk{ background:var(--paper);  /* give every sticker an explicit height: its children are absolute */ padding:14px; border-radius:30px; box-shadow:0 22px 50px rgba(17,17,17,.35); }
+.stk > *{ position:absolute; }
+
+/* finger: touch indicator for taps and swipes */
+.tch{ width:110px; height:110px; border-radius:50%; background:rgba(245,243,238,.35); border:4px solid rgba(245,243,238,.85); box-shadow:0 0 0 14px rgba(245,243,238,.12); }
+.tch.dk{ background:rgba(17,17,17,.18); border-color:rgba(17,17,17,.6); box-shadow:0 0 0 14px rgba(17,17,17,.08); }
+
+/* big numerals */
+.big{ font:900 260px/0.9 var(--ui); color:var(--red); direction:ltr; white-space:nowrap; letter-spacing:-0.03em; }
+
+/* story chrome (shown by storyOn, hidden by storyOff): progress segments, author row, reply field */
+#sbars{ left:70px; top:130px; width:1020px; height:8px; display:flex; gap:10px; }
+#sbars .sseg{ position:relative; flex:1; }
+#shead{ left:70px; top:156px; width:1020px; height:80px; display:flex; align-items:center; gap:18px; direction:rtl; color:var(--ink); }
+#shead .av{ width:72px; height:72px; background:var(--red); color:var(--paper); font-size:30px; }
+#shead b{ font:800 40px/1 var(--ui); } #shead span{ font:500 34px/1 var(--ui); color:rgba(17,17,17,.55); }
+#reply{ left:80px; top:1862px; width:1000px; height:76px; border-radius:38px; border:3px solid rgba(17,17,17,.35); display:flex; align-items:center; padding:0 34px; font:500 34px/1 var(--ui); color:rgba(17,17,17,.5); direction:rtl; }
+
+/* group chat panel: .chatp > .hd(.av + b + span) + .msg rows (inline top) + #typing dots */
+.chatp{ background:color-mix(in srgb, var(--paper) 9%, var(--ink)); border-radius:44px; box-shadow:0 0 0 2px rgba(245,243,238,.14); }
+.chatp > *{ position:absolute; }
+.chatp .hd{ right:36px; top:28px; display:flex; gap:16px; align-items:center; direction:rtl; color:var(--paper); }
+.chatp .hd .av{ width:64px; height:64px; background:var(--red); color:var(--paper); font-size:26px; }
+.chatp .hd b{ font:800 40px/1 var(--ui); } .chatp .hd span{ font:500 30px/1 var(--ui); opacity:.6; }
+.chatp .msg{ right:36px; }
+.typing{ width:150px; height:72px; border-radius:36px; background:rgba(245,243,238,.16); }
+.typing i{ position:absolute; top:28px; width:16px; height:16px; border-radius:50%; background:var(--paper); opacity:.8; }
+
+/* chart card: .card2.chartc > .hd + .sub + .tabs + svg (viewBox 0 0 920 520, built by chartBuild) + .xl labels */
+.chartc .hd{ right:96px; top:34px; font:800 46px/1.15 var(--ui); direction:rtl; white-space:nowrap; }
+.chartc .sub{ right:96px; top:96px; font:600 32px/1.2 var(--ui); color:rgba(17,17,17,.55); direction:rtl; white-space:nowrap; }
+.chartc .tabs{ left:40px; top:30px; display:flex; gap:12px; direction:ltr; }
+.chartc .tabs span{ position:relative; padding:10px 24px 14px; border-radius:30px; font:700 32px/1 var(--ui); background:rgba(17,17,17,.07); color:rgba(17,17,17,.6); }
+.chartc svg{ left:30px; top:170px; width:920px; height:520px; overflow:visible; }
+.chartc .xl{ left:40px; top:706px; width:900px; display:flex; justify-content:space-between; font:700 26px/1 var(--mono); color:rgba(17,17,17,.5); direction:ltr; }
+.brk{ width:16px; background:var(--red); border-radius:8px; transform-origin:50% 100%; }
+.brk i{ position:absolute; left:-22px; top:-30px; width:0; height:0; border-left:30px solid transparent; border-right:30px solid transparent; border-bottom:44px solid var(--red); }
+
+.tch{ z-index:6; }

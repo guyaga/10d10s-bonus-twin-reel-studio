@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="he">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    {{FONTS}}
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+{{LOOKCSS}}
+      /* ---------- this reel's content ---------- */
+      /* hook: giant glitch word behind the twin, inside the screen */
+      #gOff{ left:80px; top:262px; width:1000px; font-size:196px; color:color-mix(in srgb, var(--red) 80%, transparent); }
+      /* world map plate + government-site dots */
+      #map{ left:70px; top:270px; width:1020px; height:529px; }
+      #map img{ position:absolute; left:0; top:0; width:1020px; height:529px; }
+      #map .gd{ position:absolute; width:22px; height:22px; margin:-11px 0 0 -11px; border-radius:50%; background:var(--paper); box-shadow:0 0 0 5px color-mix(in srgb, var(--red) 55%, transparent), 0 0 18px var(--paper); opacity:0; }
+      #map .gx{ position:absolute; width:26px; height:26px; margin:-13px 0 0 -13px; opacity:0; }
+      #map .gx::before,#map .gx::after{ content:""; position:absolute; left:11px; top:-2px; width:5px; height:30px; background:var(--red); transform:rotate(45deg); }
+      #map .gx::after{ transform:rotate(-45deg); }
+      #mapT{ left:80px; top:236px; }
+      #stat{ left:70px; top:808px; width:1020px; height:44px; }
+      #stat .sg{ position:absolute; top:6px; width:40px; height:30px; background:var(--paper); }
+      #stat .lbl{ position:absolute; right:0; top:0; font:700 34px/44px "Space Mono","IBM Plex Sans Hebrew",monospace; color:var(--paper); letter-spacing:.12em; direction:ltr; }
+      /* radar behind the AI chip */
+      #radar{ left:640px; top:272px; width:500px; height:500px; border-radius:50%; }
+      #radar .rg{ position:absolute; border-radius:50%; border:2px solid rgba(245,243,238,.28); }
+      #radar .sw{ position:absolute; left:0; top:0; width:500px; height:500px; border-radius:50%; background:conic-gradient(from 0deg, color-mix(in srgb, var(--red) 60%, transparent), transparent 70deg); }
+      #radar .bl{ position:absolute; left:238px; top:238px; width:24px; height:24px; border-radius:50%; background:var(--red); box-shadow:0 0 24px var(--red); }
+      /* city */
+      #city{ left:0; top:0; width:1160px; height:2000px; }
+      #city > *{ position:absolute; }
+      .bld{ opacity:0; transform-origin:50% 100%; border:3px solid rgba(245,243,238,.75); background-color:rgba(17,17,17,.88);
+        background-image:linear-gradient(rgba(245,243,238,.22) 2px, transparent 2px), linear-gradient(90deg, rgba(245,243,238,.22) 2px, transparent 2px); background-size:22px 30px; background-position:4px 8px; }
+      .bld .lit{ position:absolute; inset:-3px; opacity:0; border:3px solid var(--red); background-color:color-mix(in srgb, var(--red) 42%, transparent);
+        background-image:linear-gradient(var(--red) 3px, transparent 3px), linear-gradient(90deg, var(--red) 3px, transparent 3px); background-size:22px 30px; background-position:4px 8px;
+        box-shadow:0 0 40px color-mix(in srgb, var(--red) 55%, transparent); }
+      .bld .ant{ position:absolute; left:50%; top:-60px; width:3px; height:60px; background:rgba(245,243,238,.75); }
+      #ground{ left:40px; top:1368px; width:1080px; height:3px; background:rgba(245,243,238,.8); opacity:0; transform-origin:50% 50%; }
+      .seg{ opacity:0; height:66px; top:1382px; border:2px solid rgba(245,243,238,.35); background:repeating-linear-gradient(45deg, rgba(245,243,238,.12) 0 6px, transparent 6px 14px); }
+      .seg.on{ border:0; background:var(--red); }
+      .seg b{ position:absolute; left:0; right:0; top:14px; text-align:center; font:700 28px "Space Mono","IBM Plex Sans Hebrew",monospace; color:var(--paper); letter-spacing:.06em; }
+      #cityT{ left:80px; top:262px; }
+      #ctr{ left:760px; top:262px; width:300px; height:220px; direction:ltr; text-align:right; }
+      #ctr .n{ position:absolute; right:0; top:0; font:700 128px/1 "Space Mono","IBM Plex Sans Hebrew",monospace; color:var(--paper); white-space:nowrap; letter-spacing:-.02em; }
+      #ctr .n em{ font-style:normal; color:var(--red); }
+      #ctr .lb{ position:absolute; right:0; top:140px; padding:2px 16px 8px; background:var(--red); color:var(--paper); font:700 46px "IBM Plex Sans Hebrew","Rubik",sans-serif; direction:rtl; white-space:nowrap; }
+      #php{ left:330px; top:1316px; width:500px; height:184px; background:var(--ink); border:6px solid var(--red); box-shadow:0 0 60px color-mix(in srgb, var(--red) 60%, transparent);
+        font:700 150px/170px "Space Mono","IBM Plex Sans Hebrew",monospace; color:var(--paper); text-align:center; letter-spacing:.12em; direction:ltr; }
+      #php small{ position:absolute; left:0; right:0; top:-46px; font:700 26px "Space Mono","IBM Plex Sans Hebrew",monospace; color:var(--red); letter-spacing:.2em; line-height:1; }
+{{CAPSTYLE}}
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="{{DUR}}" data-width="1080" data-height="1920">
+      <div id="cam">
+        <div class="full" id="bg"></div>
+
+        <!-- MAP (outside the monitor: the monitor drops to the lower half while it is up) -->
+        <div class="ov" id="map">
+          <img src="assets/worldmap.png" alt="">
+        </div>
+        <div class="chip ov" id="mapT">אתרי ממשלה<b>GOV.NET</b></div>
+        <div class="ov" id="stat"><span class="lbl" id="statL">ONLINE</span></div>
+
+        <!-- THE MONITOR: everything inside is clipped to the screen -->
+        <div id="mon">
+          <div id="scrbg"></div>
+          <div class="giant" id="gOff">OFFLINE</div>
+          <div class="ov" id="radar">
+            <div class="rg" style="left:0;top:0;width:500px;height:500px;"></div>
+            <div class="rg" style="left:83px;top:83px;width:334px;height:334px;"></div>
+            <div class="rg" style="left:166px;top:166px;width:168px;height:168px;"></div>
+            <div class="sw" id="rsw"></div>
+            <div class="bl ov" id="rbl"></div>
+          </div>
+          <div id="twin">
+            <video id="pv" class="clip" src="assets/presenter.webm" muted playsinline data-start="0" data-duration="{{DUR}}" data-track-index="1"></video>
+          </div>
+          <div id="scan"></div>
+          <div id="roll"></div>
+          <div id="tear"></div>
+        </div>
+        <div id="bez">
+          <div class="brk" style="position:absolute;inset:0;"><i></i><i></i><i></i><i></i></div>
+          <span class="lab l">CAM 01 · 1080i</span><span class="lab r">● REC</span>
+        </div>
+
+        <!-- IN FRONT -->
+        <div class="chip ov" id="cUK" style="left:190px;top:370px;">בריטניה<b>OFFLINE</b></div>
+        <div class="chip ov" id="cNL" style="left:588px;top:452px;">הולנד<b>OFFLINE</b></div>
+        <div class="chip ov" id="cFI" style="left:648px;top:318px;">פינלנד<b>OFFLINE</b></div>
+        <img class="ph" id="plug" src="assets/plug.png" alt="" style="left:640px;top:540px;width:360px;" data-r="0.757">
+        <div class="chip ov" id="cOff" style="left:330px;top:748px;">כיבוי יזום<b>MANUAL</b></div>
+
+        <img class="ph" id="aichip" src="assets/aichip.png" alt="" style="left:730px;top:360px;width:320px;" data-r="1.012">
+        <div class="lock" id="lkAI" style="left:716px;top:346px;width:348px;height:352px;">
+          <div class="brk" style="position:absolute;inset:0;"><i></i><i></i><i></i><i></i></div><span class="tag" style="top:auto;bottom:-62px;">TARGET: AI</span>
+        </div>
+
+        <div id="city"></div>
+        <div class="hudtxt ov" id="cityT">INTERNET // CITY VIEW</div>
+        <div class="ov" id="ctr" data-h="220"><div class="n"><em id="ctrN">0</em>/10</div><div class="lb">בניינים</div></div>
+        <div class="lock" id="lkPHP" style="left:74px;top:1374px;width:1012px;height:82px;">
+          <div class="brk" style="position:absolute;inset:0;"><i></i><i></i><i></i><i></i></div><span class="tag">FOUNDATION</span>
+        </div>
+        <div class="ov" id="php">PHP</div>
+
+        <!-- broadcast furniture -->
+        <div id="lt"><div class="tab"><b>BREAKING</b> · מבזק</div><div class="strip">האינטרנט כיבה את עצמו<u></u></div></div>
+        <div id="tick"><div class="run">ממשלות מורידות אתרים בכוונה<em>▪</em>PHP<em>▪</em>AI במרכז הסיפור<em>▪</em>ממשלות מורידות אתרים בכוונה<em>▪</em>PHP<em>▪</em>AI במרכז הסיפור<em>▪</em>ממשלות מורידות אתרים בכוונה</div><div class="tg">LIVE</div></div>
+        <div id="top"><span class="live"><i></i>LIVE</span><span class="ch">{{HEADER}} · SIGNAL</span><span class="tc">TC 17:42:06:00</span></div>
+
+        <div class="full" id="vig"></div>
+        <div class="full" id="bars"><i style="background:#F5F3EE"></i><i style="background:rgba(245,243,238,.6)"></i><i style="background:#E63B2E"></i><i style="background:color-mix(in srgb, #E63B2E 45%, #111111)"></i><i style="background:#777"></i><i style="background:#111111"></i><i style="background:#000"></i><div class="ns">NO SIGNAL</div></div>
+        <div class="full" id="static"></div>
+        <div class="full" id="flash"></div>
+        <div class="full" id="grain"></div>
+      </div>
+      <div class="caps" id="caps"></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const DUR = {{DUR}};
+      const HANDS = {{HANDS}};
+{{LOOKJS}}
+      buildBlocks(3);
+
+      // ---------- build the map dots and the city (DOM first, timeline after)
+      // [id, x, y] on the 1020x529 map
+      const SITES = [["us", 300, 190], ["br", 350, 360], ["in", 690, 260], ["za", 540, 410], ["jp", 858, 192], ["ca", 205, 62], ["au", 850, 410],
+                     ["mx", 215, 265], ["ng", 500, 290], ["uk", 468, 155], ["ar", 300, 450], ["nl", 495, 162], ["usw", 180, 180], ["fi", 545, 105]];
+      const mapEl = document.getElementById("map"), statEl = document.getElementById("stat");
+      SITES.forEach(([id, x, y], k) => {
+        const d = document.createElement("i"); d.className = "gd"; d.id = "gd_" + id; d.style.left = x + "px"; d.style.top = y + "px"; mapEl.appendChild(d);
+        const g = document.createElement("i"); g.className = "gx"; g.id = "gx_" + id; g.style.left = x + "px"; g.style.top = y + "px"; mapEl.appendChild(g);
+        const s = document.createElement("i"); s.className = "sg"; s.id = "sg" + k; s.style.left = (k * 50) + "px"; statEl.appendChild(s);
+      });
+      const HB = [300, 430, 250, 500, 350, 520, 270, 410, 330, 460], LIT = [9, 1, 6, 3, 0, 7, 4], GROUND = 1330;
+      const city = document.getElementById("city");
+      HB.forEach((h, i) => {
+        const x = 40 + i * 101;
+        const b = document.createElement("div"); b.className = "bld"; b.id = "bd" + i;
+        Object.assign(b.style, { left: (x + 40) + "px", top: (GROUND - h + 40) + "px", width: "88px", height: h + "px" });
+        b.innerHTML = `<div class="lit" id="bl${i}"></div>` + (i % 3 === 1 ? `<div class="ant"></div>` : "");
+        city.appendChild(b);
+        const s = document.createElement("div"); s.className = "seg" + (LIT.includes(i) ? " on" : ""); s.id = "sgm" + i;
+        Object.assign(s.style, { left: (x + 40 - 4) + "px", width: "96px" });
+        if (LIT.includes(i)) s.innerHTML = "<b>PHP</b>";
+        city.appendChild(s);
+      });
+      const g = document.createElement("div"); g.id = "ground"; city.appendChild(g);
+
+      // explicit t=0 state for every overlay (the renderer seeks out of order)
+      tl.set(".ov,.ph,.lock,.chip,.bld,.lit,.seg,.gd,.gx,.mb,#bars,#static", { opacity: 0 }, 0);
+      tl.set("#lt,#gOff,#bez", { opacity: 1 }, 0);
+      ambient(1400);
+
+      // ===== beat 1 (0.25-8.9): BREAKING. "This week something crazy happened on the internet. Governments around the world
+      //        took their own sites down. On purpose. And at the centre of the story: AI."
+      mode(0, "mon", 0);
+      cut(0, tw(1.0, 540, 600)); push(0, tw(1.07, 540, 592), 3.2);
+      jitter("#gOff", 0, 3.2);
+      tl.to("#lt .strip u", { x: 960, duration: 0.5, ease: "power2.inOut", repeat: 2, yoyo: true }, 0.2);
+      jolt(1.8, 30); glitch(1.82, 0.1, 0.5);                          // "מטורף"
+      for (let k = 0; k < 6; k++) tl.set("#gOff", { opacity: k % 2 ? 1 : 0.2 }, 2.48 + k * 0.05);   // "באינטרנט": the word stutters
+      cutOut("#lt", 3.1);
+
+      // 3.2 world map: monitor drops to the lower half, the map scans in above
+      glitch(3.18, 0.24); hide("#gOff", 3.2);
+      mode(3.2, "split", 0.28);
+      cut(3.2, tw(0.62, 540, 1092)); push(3.2, tw(0.66, 540, 1090), 3.66);
+      scanIn("#map", 3.3, 0.36); tuneIn("#mapT", 3.5); tuneIn("#stat", 3.6);
+      SITES.forEach(([id], k) => {
+        const t = 3.62 + k * 0.06;                                   // "ממשלות ברחבי העולם": every government site pings online
+        ft("#gd_" + id, { opacity: 0, scale: 3 }, { opacity: 1, scale: 1, duration: 0.14, ease: E.hud }, t);
+        ft("#sg" + k, { opacity: 0 }, { opacity: 1, duration: 0.01 }, t);
+      });
+      const DARK = { uk: 5.0, nl: 5.3, fi: 5.6 };
+      SITES.forEach(([id], k) => {
+        const t = DARK[id] || 4.62 + k * 0.105;                      // "הורידו את האתרים שלהן": one by one they go dark
+        tl.set("#gd_" + id, { background: "#E63B2E", scale: 1.6 }, t);
+        tl.set("#gd_" + id, { opacity: 0 }, t + 0.07);
+        tl.set("#gx_" + id, { opacity: 1 }, t + 0.07);
+        tl.set("#sg" + k, { opacity: 0.18 }, t + 0.07);
+      });
+      tuneIn("#cUK", 5.05); tuneIn("#cNL", 5.35); tuneIn("#cFI", 5.65);
+      tl.set("#statL", { textContent: "OFFLINE", color: "#E63B2E" }, 5.9);
+      // "בכוונה": the plug is pulled, launched from his raised hand
+      sp("plug", 6.1, tw(0.64, 540, 1091), 0, 6.86); jolt(6.1, 22);
+      tuneIn("#cOff", 6.35);
+      hide("#map,#mapT,#stat,#cUK,#cNL,#cFI,#cOff", 6.86);
+
+      // 6.86 "ובמרכז הסיפור: AI": back to the full monitor, radar sweeps, the AI chip gets locked
+      glitch(6.84, 0.2);
+      mode(6.86, "mon", 0.24);
+      cut(6.86, tw(1.1, 400, 600)); push(6.86, tw(1.14, 400, 596), 2.1);
+      tuneIn("#radar", 6.95);
+      ft("#rsw", { rotation: 0 }, { rotation: 720, duration: 2.0, ease: "none" }, 6.9);
+      for (let k = 0; k < 4; k++) { tl.set("#rbl", { opacity: 1, scale: 1.6 }, 7.4 + k * 0.2); tl.set("#rbl", { opacity: 0.4, scale: 1 }, 7.5 + k * 0.2); }
+      slam("#aichip", 8.16, 8.9, 1.8); lockOn("#lkAI", 8.16, 8.9); flash(8.16); shake(8.18, 10); jolt(8.16, 34);
+      hide("#radar,#aichip", 8.9);
+
+      // ===== beat 2 (8.92-17.22): THE CITY. "Think of the internet as a giant city. 7 of 10 buildings in it stand
+      //        on the same foundation: software called PHP."
+      nosig(8.84, 0.26);
+      mode(8.95, "full", 0);
+      cut(8.95, tw(1.0, 540, 470)); push(8.95, tw(1.05, 540, 466), DUR - 8.95);
+      ft("#ground", { opacity: 0, scaleX: 0 }, { opacity: 1, scaleX: 1, duration: 0.3, ease: E.hud }, 9.1);
+      HB.forEach((_, i) => ft("#bd" + i, { opacity: 0, scaleY: 0 }, { opacity: 1, scaleY: 1, duration: 0.24, ease: "steps(5)" }, 9.2 + i * 0.16));
+      tuneIn("#cityT", 9.4);
+      // "7 מכל 10": the counter comes out of his hand, 7 buildings light up
+      tl.set("#ctrN", { textContent: "0" }, 0);
+      sp("ctr", 11.64, tw(1.0, 540, 470));
+      jitter("#ctr", 12.1, DUR);
+      LIT.forEach((i, k) => { const t = 11.8 + k * 0.17; tl.set("#bl" + i, { opacity: 1 }, t); tl.set("#ctrN", { textContent: String(k + 1) }, t); });
+      // "עומדים על אותו יסוד": the foundation draws in under them, the 7 lit ones share the red slab
+      HB.forEach((_, i) => ft("#sgm" + i, { opacity: 0, scaleY: 0 }, { opacity: 1, scaleY: 1, duration: 0.12, ease: "steps(3)" }, 13.8 + i * 0.05));
+      for (let k = 0; k < 4; k++) tl.set(".seg.on", { opacity: k % 2 ? 1 : 0.5 }, 14.5 + k * 0.08);
+      // "תוכנה שנקראת PHP": lock on the foundation, then the name slams in
+      lockOn("#lkPHP", 15.14, 16.3);
+      slam("#php", 16.3, DUR + 1, 1.9); glitch(16.28, 0.12, 0.6); flash(16.3); shake(16.32, 14);
+      for (let k = 0; k < 6; k++) tl.set(LIT.map((i) => "#bl" + i).join(","), { opacity: k % 2 ? 1 : 0.35 }, 16.36 + k * 0.05);
+
+      // ---------- captions
+      const KEY = new Set(["בכוונה.", "AI.", "PHP", "7", "10"]);
+      signalCaptions({{CAPS}}, KEY);
+      tl.set({}, {}, DUR);
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

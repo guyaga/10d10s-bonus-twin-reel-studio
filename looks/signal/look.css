@@ -1,0 +1,89 @@
+/* ===== SIGNAL look: theme (broadcast HUD / CRT / terminal). Ink is the background.
+   Colours: only #111111 / #F5F3EE / #E63B2E, rgba(17,17,17,a) / rgba(245,243,238,a) and color-mix of var(--red):
+   build.py swaps exactly those for the creator's brand, anything else would not follow the brand. ===== */
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{ --ink:#111111; --paper:#F5F3EE; --red:#E63B2E; }
+html,body{ width:1080px; height:1920px; overflow:hidden; background:var(--ink); }
+#root{ position:relative; width:1080px; height:1920px; overflow:hidden; background:var(--ink); }
+#cam{ position:absolute; inset:-40px; transform-origin:50% 45%; }
+#cam > *{ position:absolute; }
+.full{ left:40px; top:40px; width:1080px; height:1920px; }
+.ov{ opacity:0; }
+
+/* control-room backdrop: faint HUD dot grid + vignette */
+#bg{ background-color:var(--ink);
+  background-image:radial-gradient(rgba(245,243,238,.10) 1.6px, transparent 2px), linear-gradient(rgba(245,243,238,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(245,243,238,.035) 1px, transparent 1px);
+  background-size:30px 30px, 120px 120px, 120px 120px; }
+#vig{ background:radial-gradient(ellipse 80% 60% at 50% 45%, transparent 55%, rgba(17,17,17,.8) 100%); }
+
+/* THE MONITOR: #mon is a cam-sized wrapper whose clip-path is the screen (see MODES in look.js) */
+#mon{ left:0; top:0; width:1160px; height:2000px; clip-path:inset(240px 80px 670px 80px round 34px); }
+#mon > *{ position:absolute; }
+#scrbg{ left:40px; top:40px; width:1080px; height:1920px;
+  background:radial-gradient(ellipse 62% 30% at 50% 30%, rgba(245,243,238,.20), rgba(245,243,238,.06) 55%, transparent 80%),
+             radial-gradient(rgba(245,243,238,.07) 1.4px, transparent 1.8px) 0 0/14px 14px,
+             linear-gradient(rgba(245,243,238,.025), rgba(245,243,238,.025)), var(--ink); }
+#twin{ left:40px; top:40px; width:1920px; height:1080px; transform-origin:0 0; opacity:0; }
+#twin > *{ position:absolute; left:0; top:0; width:1920px; height:1080px; }
+#scan{ left:40px; top:40px; width:1080px; height:1920px; pointer-events:none;
+  background:repeating-linear-gradient(to bottom, transparent 0 3px, rgba(17,17,17,.32) 3px 5px); }
+#roll{ left:40px; top:40px; width:1080px; height:260px; pointer-events:none;
+  background:linear-gradient(to bottom, transparent, rgba(245,243,238,.06) 50%, transparent); }
+#tear{ left:40px; top:40px; width:1080px; height:1920px; opacity:0; pointer-events:none;
+  background:repeating-linear-gradient(to bottom, transparent 0 37px, color-mix(in srgb, var(--red) 70%, transparent) 37px 43px, transparent 43px 91px, rgba(245,243,238,.55) 91px 94px, transparent 94px 160px); }
+
+/* bezel: thin frame, inner CRT shadow, accent corner brackets, channel labels */
+#bez{ left:80px; top:240px; width:1000px; height:1090px; border-radius:34px; border:2px solid rgba(245,243,238,.28);
+  box-shadow:inset 0 0 90px rgba(17,17,17,.85), 0 0 0 10px rgba(245,243,238,.04); }
+#bez .lab{ position:absolute; top:22px; font:700 24px "Space Mono","IBM Plex Sans Hebrew",monospace; letter-spacing:.14em; color:rgba(245,243,238,.75); direction:ltr; white-space:nowrap; }
+#bez .lab.l{ left:34px; } #bez .lab.r{ right:34px; color:var(--red); }
+.brk{ pointer-events:none; }
+.brk i{ position:absolute; width:56px; height:56px; border:0 solid var(--red); }
+.brk i:nth-child(1){ left:-6px; top:-6px; border-left-width:6px; border-top-width:6px; }
+.brk i:nth-child(2){ right:-6px; top:-6px; border-right-width:6px; border-top-width:6px; }
+.brk i:nth-child(3){ left:-6px; bottom:-6px; border-left-width:6px; border-bottom-width:6px; }
+.brk i:nth-child(4){ right:-6px; bottom:-6px; border-right-width:6px; border-bottom-width:6px; }
+.brk.paper i{ border-color:var(--paper); }
+
+/* lock-on box (HUD brackets that snap onto a target) */
+.lock{ opacity:0; }
+.lock .tag{ position:absolute; left:-6px; top:-62px; padding:4px 14px 6px; background:var(--red); color:var(--paper); font:700 30px "Space Mono","IBM Plex Sans Hebrew",monospace; letter-spacing:.08em; white-space:nowrap; direction:ltr; }
+
+/* top HUD bar: LIVE pill, channel bug, running timecode */
+#top{ left:80px; top:100px; width:1000px; height:60px; direction:ltr; font:700 30px "Space Mono","IBM Plex Sans Hebrew",monospace; color:var(--paper); letter-spacing:.1em; }
+#top .live{ position:absolute; left:0; top:0; padding:6px 18px 8px 46px; background:var(--red); }
+#top .live i{ position:absolute; left:16px; top:18px; width:18px; height:18px; border-radius:50%; background:var(--paper); }
+#top .ch{ position:absolute; left:200px; top:6px; }
+#top .tc{ position:absolute; right:0; top:6px; color:rgba(245,243,238,.7); }
+
+/* lower third (BREAKING) */
+#lt{ left:80px; top:1352px; width:1000px; height:150px; direction:rtl; }
+#lt .tab{ position:absolute; right:0; top:0; height:52px; padding:4px 22px; background:var(--red); color:var(--paper); font:700 34px "IBM Plex Sans Hebrew","Rubik",sans-serif; white-space:nowrap; }
+#lt .tab b{ font:700 28px "Space Mono","IBM Plex Sans Hebrew",monospace; letter-spacing:.12em; margin-right:14px; direction:ltr; }
+#lt .strip{ position:absolute; right:0; left:0; top:52px; height:96px; background:var(--paper); color:var(--ink); font:700 70px/96px "IBM Plex Sans Hebrew","Rubik",sans-serif; padding:0 26px; white-space:nowrap; overflow:hidden; }
+#lt .strip u{ position:absolute; left:0; top:0; width:14px; height:96px; background:var(--red); }
+
+/* ticker crawl */
+#tick{ left:40px; top:1838px; width:1080px; height:64px; background:var(--paper); overflow:hidden; }
+#tick .run{ position:absolute; right:150px; top:0; height:64px; white-space:nowrap; font:700 36px/64px "IBM Plex Sans Hebrew","Rubik",sans-serif; color:var(--ink); direction:rtl; }
+#tick .run em{ font-style:normal; color:var(--red); margin:0 22px; }
+#tick .tg{ position:absolute; right:0; top:0; width:150px; height:64px; background:var(--red); color:var(--paper); font:700 30px/64px "Space Mono","IBM Plex Sans Hebrew",monospace; text-align:center; letter-spacing:.1em; z-index:2; }
+
+/* type */
+.mono{ font-family:"Space Mono","IBM Plex Sans Hebrew",monospace; font-weight:700; direction:ltr; letter-spacing:.06em; }
+.giant{ font-family:"Rubik Glitch","Rubik",sans-serif; font-weight:400; line-height:.9; white-space:nowrap; color:var(--red); text-align:center; }
+.chip{ opacity:0; padding:6px 20px 10px; background:var(--ink); border:3px solid var(--red); color:var(--paper); font:700 36px/1.1 "IBM Plex Sans Hebrew","Rubik",sans-serif; direction:rtl; white-space:nowrap; }
+.chip b{ font:700 26px "Space Mono","IBM Plex Sans Hebrew",monospace; color:var(--red); letter-spacing:.1em; margin-right:12px; direction:ltr; }
+.hudtxt{ font:700 26px "Space Mono","IBM Plex Sans Hebrew",monospace; color:rgba(245,243,238,.75); letter-spacing:.14em; direction:ltr; white-space:nowrap; }
+
+/* phosphor images: keyed PNGs (alpha) with a soft glow */
+.ph{ opacity:0; filter:drop-shadow(0 0 14px color-mix(in srgb, var(--red) 35%, transparent)); }
+
+/* glitch layers */
+.mb{ opacity:0; pointer-events:none; }
+#bars{ opacity:0; display:flex; }
+#bars i{ flex:1; }
+#bars .ns{ position:absolute; left:290px; top:880px; width:500px; padding:16px 0 20px; background:var(--ink); color:var(--paper); font:700 56px "Space Mono","IBM Plex Sans Hebrew",monospace; text-align:center; letter-spacing:.2em; }
+#static{ opacity:0; background:url(assets/grain.png); background-size:256px 256px; filter:contrast(3) brightness(1.3) grayscale(1); }
+#flash{ background:var(--paper); opacity:0; }
+#grain{ background:url(assets/grain.png); mix-blend-mode:overlay; opacity:.12; pointer-events:none; }

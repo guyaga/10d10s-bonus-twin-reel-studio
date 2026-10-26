@@ -1,0 +1,290 @@
+<!doctype html>
+<!-- FEED starter: the reel is a phone. Read look/LOOK.md first; the full worked example is looks/feed/example/.
+     Everything marked REPLACE is placeholder content: rewrite it for your script, and retime every t to audio/words.json.
+     The demo timeline runs 0-10.2 s (one of each helper), then holds HERO; the outro is tied to DUR. -->
+<html lang="he">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    {{FONTS}}
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      *{margin:0;padding:0;box-sizing:border-box;}
+      html,body{ width:1080px; height:1920px; overflow:hidden; }
+      #root{ position:relative; width:1080px; height:1920px; overflow:hidden; }
+      #cam{ position:absolute; inset:-40px; transform-origin:50% 45%; }
+      #flash{ left:40px; top:40px; width:1080px; height:1920px; background:var(--paper); opacity:0; }
+      .caps{ position:absolute; left:50px; right:50px; top:1430px; height:220px; }
+      .cap{ position:absolute; inset:0; display:flex; flex-direction:row; flex-wrap:wrap; justify-content:center; align-items:center; gap:0 20px; direction:rtl; opacity:0; }
+{{LOOKCSS}}
+{{CAPSTYLE}}
+      /* ---------- this reel (cam px = canvas px + 40) ---------- */
+      /* frame 0 (thumbnail): the bubble starts in HERO from CSS; callInit() pins the same state at t=0 */
+      #callclip{ clip-path:inset(260px 50px 540px 50px round 56px); }
+      #twin{ transform:translate(-585.6px,324px) scale(1.2); }
+      #ring{ left:90px; top:300px; width:980px; height:1120px; }
+
+      /* thumbnail hook card under the HERO bubble (clears in the first 0.3 s) */
+      #hook0{ left:90px; top:1446px; width:980px; height:290px; }
+      #hook0 .lb{ right:44px; top:30px; display:flex; gap:16px; align-items:center; direction:rtl; }
+      #hook0 .lb span{ font:700 40px/1 var(--ui); color:rgba(17,17,17,.7); }
+      #hook0 .row{ left:0; right:0; top:100px; height:170px; display:flex; align-items:center; justify-content:center; gap:26px; direction:ltr; }
+      #hook0 .was{ font:800 92px/1 var(--ui); color:rgba(17,17,17,.42); text-decoration:line-through; text-decoration-color:var(--red); text-decoration-thickness:8px; }
+      #hook0 .now{ font:900 168px/1 var(--ui); color:var(--red); letter-spacing:-0.03em; }
+
+      /* counter card under the right PiP */
+      #card .lb{ right:44px; top:40px; display:flex; gap:16px; align-items:center; direction:rtl; }
+      #card .lb span{ font:700 36px/1 var(--ui); color:rgba(17,17,17,.6); }
+      #card .ti{ right:44px; top:122px; font:800 50px/1.15 var(--ui); direction:rtl; white-space:nowrap; }
+      #card #num{ left:0; right:0; top:230px; text-align:center; font:900 150px/1 var(--ui); color:var(--ink); direction:ltr; letter-spacing:-0.03em; white-space:nowrap; }
+      #card .un{ left:0; right:0; top:400px; text-align:center; font:600 36px/1.2 var(--ui); color:rgba(17,17,17,.55); direction:rtl; }
+      #card .btn{ left:40px; top:540px; width:270px; height:110px; border-radius:55px; display:flex; align-items:center; justify-content:center; font:800 46px/1 var(--ui); background:var(--ink); color:var(--paper); direction:rtl; }
+      #gain{ right:44px; top:566px; }
+
+      /* story sticker (an image slot: put <img src="assets/NAME.png"> inside .ph) */
+      #stk1 .ph{ left:14px; top:14px; width:412px; height:300px; border-radius:18px; background:radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--red) 30%, transparent), color-mix(in srgb, var(--red) 8%, transparent)); }
+      #stk1 .ph img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:18px; }
+      #stk1 .pill{ left:50%; top:-34px; transform:translateX(-50%); }
+      #stk1 .tx{ right:28px; top:334px; font:900 64px/1 var(--ui); color:var(--ink); direction:rtl; white-space:nowrap; }
+      #stk1 .tx em{ font-style:normal; color:var(--red); }
+
+      /* chat extras: the unread bubble beside the left PiP */
+      #unread{ border-radius:50%; background:var(--red); color:var(--paper); display:flex; align-items:center; justify-content:center; font:900 120px/1 var(--ui); direction:ltr; box-shadow:0 0 0 14px color-mix(in srgb, var(--red) 25%, transparent); }
+      #unreadL{ left:600px; top:570px; width:470px; text-align:center; font:700 40px/1.2 var(--ui); color:var(--paper); direction:rtl; }
+
+      /* chart extras: the big multiplier top right, its label, the % chip, the breakout arrow */
+      #mult{ left:560px; top:196px; width:520px; height:270px; text-align:center; }
+      #multL{ left:560px; top:470px; width:520px; text-align:center; font:700 40px/1.2 var(--ui); color:var(--paper); direction:rtl; }
+      #pctc{ left:700px; top:540px; }
+      #brk{ left:1000px; top:560px; height:420px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="{{DUR}}" data-width="1080" data-height="1920">
+      <div id="cam">
+        <!-- THE CALL BUBBLE: clip window + twin, then its chrome (ring + live tag with the call timer) -->
+        <div id="callclip">
+          <div id="callbg"></div>
+          <div id="twin">
+            <video id="pv" class="clip" src="assets/presenter.webm" muted playsinline data-start="0" data-duration="{{DUR}}" data-track-index="1"></video>
+          </div>
+        </div>
+        <div id="ring"><div id="rtag"><i></i><span id="rtime">00:00</span></div></div>
+
+        <!-- ===== frame 0 / thumbnail (visible from CSS): the payoff as a notification + a hook card ===== -->
+        <div class="nb" id="nb0" style="left:70px;top:146px;">
+          <div class="ico">!</div>
+          <div class="tt">המספר של השבוע</div>          <!-- REPLACE: the payoff headline -->
+          <div class="bd">משפט אחד שמסביר למה זה חשוב</div>  <!-- REPLACE -->
+          <div class="tm">עכשיו</div>
+        </div>
+        <div class="card2" id="hook0">
+          <div class="lb"><span class="pill red">חדש</span><span>מה השתנה</span></div>   <!-- REPLACE -->
+          <div class="row"><span class="was">100</span>                                   <!-- REPLACE: before -->
+            <svg width="96" height="60" viewBox="0 0 96 60"><path d="M4 30 H78 M56 8 L82 30 L56 52" fill="none" stroke="#111111" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="now">1,000</span></div>                                         <!-- REPLACE: after -->
+        </div>
+
+        <!-- ===== demo 1: a notification, then a counter card out of his hand ===== -->
+        <div class="nb ov" id="nb1" style="left:70px;top:146px;">
+          <div class="ico av">AB</div>                    <!-- REPLACE: initials only, never a stranger's face -->
+          <div class="tt">שם השולח</div>                   <!-- REPLACE -->
+          <div class="bd">הודעה קצרה על הנושא</div>        <!-- REPLACE -->
+          <div class="tm">עכשיו</div>
+        </div>
+        <div class="card2 ov" id="card" style="left:90px;top:808px;width:980px;height:700px;" data-h="700">
+          <div class="lb"><span class="pill red"><span class="dot"></span>LIVE</span><span>מתעדכן עכשיו</span></div>  <!-- REPLACE -->
+          <div class="ti">כותרת הכרטיס</div>               <!-- REPLACE -->
+          <div id="num">0</div>
+          <div class="un">מה המספר הזה סופר</div>          <!-- REPLACE -->
+          <div class="btn">לפרטים</div>                    <!-- REPLACE -->
+          <div class="pill red ov" id="gain"><span class="tri"></span><span class="ltr">+100%</span></div>  <!-- REPLACE -->
+        </div>
+
+        <!-- ===== demo 2: the bubble opens into his story; a sticker grows out of his hand ===== -->
+        <div class="ov" id="sbars"><div class="sseg"><i style="width:100%"></i></div><div class="sseg"><i id="sfill" style="width:0%"></i></div><div class="sseg"></div></div>
+        <div class="ov" id="shead"><span class="av">אני</span><b>{{HEADER}}</b><span>עכשיו</span></div>
+        <div class="stk ov" id="stk1" style="left:600px;top:1080px;width:440px;height:420px;" data-h="420">
+          <div class="ph"></div>                           <!-- REPLACE: <img src="assets/NAME.png" alt=""> from gen_img.mjs -->
+          <span class="pill ink">תווית</span>              <!-- REPLACE -->
+          <div class="tx">טקסט <em>קצר</em></div>           <!-- REPLACE -->
+        </div>
+        <div class="ov" id="reply">שליחת הודעה...</div>
+
+        <!-- ===== demo 3: the group chat ===== -->
+        <div class="chatp ov" id="chat" style="left:90px;top:808px;width:980px;height:790px;">
+          <div class="hd"><span class="av">GR</span><b>שם הקבוצה</b><span>120 חברים</span></div>   <!-- REPLACE -->
+          <div class="msg ov" id="m1" style="top:130px;"><small>דנה</small>הודעה ראשונה</div>       <!-- REPLACE -->
+          <div class="msg ov" id="m2" style="top:262px;"><small>יואב</small>תגובה קצרה</div>        <!-- REPLACE -->
+          <div class="msg ov" id="m3" style="top:394px;"><small>מיכל</small>עוד הודעה בקבוצה</div>  <!-- REPLACE -->
+          <div class="typing ov" id="typing" style="right:36px;top:540px;"><i style="left:34px"></i><i style="left:67px"></i><i style="left:100px"></i></div>
+        </div>
+        <div class="ov" id="unread" style="left:690px;top:250px;width:290px;height:290px;" data-h="290">12</div>  <!-- REPLACE -->
+        <div class="ov" id="unreadL">הודעות חדשות</div>    <!-- REPLACE -->
+
+        <!-- ===== demo 4: the chart (shape built from CHART in the script) ===== -->
+        <div class="card2 chartc ov" id="chart" style="left:90px;top:808px;width:980px;height:790px;">
+          <div class="hd">כותרת הגרף</div>                 <!-- REPLACE -->
+          <div class="sub">מקור הנתונים</div>              <!-- REPLACE: name the real source -->
+          <div class="tabs"><span>1Y</span><span>5Y</span><span id="tabAll">MAX</span></div>
+          <svg viewBox="0 0 920 520">
+            <defs><clipPath id="chrect-clip"><rect id="chrect" x="0" y="-200" width="0" height="760"/></clipPath></defs>
+            <g stroke="rgba(17,17,17,.10)" stroke-width="2"><line x1="0" y1="50" x2="920" y2="50"/><line x1="0" y1="200" x2="920" y2="200"/><line x1="0" y1="350" x2="920" y2="350"/><line x1="0" y1="500" x2="920" y2="500"/></g>
+            <path id="charea" clip-path="url(#chrect-clip)" style="fill:color-mix(in srgb, #E63B2E 16%, transparent)" stroke="none"/>
+            <path id="chl1" fill="none" stroke="#111111" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+            <path id="chl2" fill="none" stroke="#E63B2E" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle id="chdot" r="18" fill="#E63B2E" stroke="#F5F3EE" stroke-width="6" opacity="0"/>
+          </svg>
+          <div class="xl" id="chxl"></div>
+        </div>
+        <div class="big ov" id="mult">×1</div>
+        <div class="ov" id="multL"></div>
+        <div class="brk ov" id="brk"><i></i></div>
+        <div class="pill red ov" id="pctc"><span class="tri"></span><span class="ltr" id="pctv">+0%</span></div>
+
+        <!-- ===== outro (tied to DUR): a follow notification that stays to the end ===== -->
+        <div class="nb ov" id="nbEnd" style="left:70px;top:146px;">
+          <div class="ico">+</div>
+          <div class="tt">{{HEADER}}</div>
+          <div class="bd">עקבו לחלק הבא</div>               <!-- REPLACE: the creator's CTA -->
+          <div class="tm">עכשיו</div>
+        </div>
+
+        <!-- phone chrome on top (the app name stays hidden until the first notification has cleared the app bar) -->
+        <div id="sbar"><span id="sclock">9:41</span><span class="ic"><span class="bars"><i style="height:9px"></i><i style="height:14px"></i><i style="height:19px"></i><i style="height:25px"></i></span><span class="batt"><i></i><b></b></span></span></div>
+        <div id="abar"><span class="nm" id="abarNm" style="opacity:0">{{HEADER}}</span><span class="bell"><i></i><u></u><b id="badge">1</b></span></div>
+        <div id="homebar"></div>
+
+        <!-- fingers: one element per use (.dk on paper) -->
+        <div class="tch ov" id="tch1" style="left:540px;top:300px;"></div>
+        <div class="tch ov" id="tch2" style="left:520px;top:1300px;"></div>
+        <div class="tch dk ov" id="tch3" style="left:520px;top:1300px;"></div>
+        <div class="tch ov" id="tch4" style="left:520px;top:1300px;"></div>
+        <div class="tch dk ov" id="tch5" style="left:356px;top:808px;"></div>
+        <div class="tch ov" id="tch6" style="left:520px;top:1300px;"></div>
+        <div id="flash"></div>
+      </div>
+      <div class="caps" id="caps"></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      // entrances never pre-render their from-state (never patch tl.fromTo/tl.from: the renderer hangs)
+      const ft = (s, f, t, p) => {
+        const to = { immediateRender: false, ...t };
+        if (f.opacity !== undefined && to.opacity === undefined && !to.keyframes) to.opacity = f.opacity;
+        return tl.fromTo(s, f, to, p);
+      };
+      const DUR = {{DUR}};
+      const E = { enter: "expo.out", pop: "back.out(2.4)", move: "power4.inOut", exit: "expo.in" };
+      const HANDS = {{HANDS}};
+      const hand = (f, i, g) => { const [hx, hy] = g[1][Math.min(i, g[1].length - 1)]; return [f.x + hx * f.scale, f.y + hy * f.scale]; };
+      const gesture = (t) => HANDS.reduce((a, b) => Math.abs(b[0] - t) < Math.abs(a[0] - t) ? b : a);
+      const shake = (t, a = 12) => ft("#cam", { x: 0, y: 0 }, { x: a, y: -a * 0.7, duration: 0.035, repeat: 5, yoyo: true, ease: "none" }, t);
+      const flash = (t, o = 0.5) => { tl.set("#flash", { opacity: o }, t); tl.set("#flash", { opacity: 0 }, t + 0.067); };
+      // const TWIN_FACE = [938, 320];   // uncomment + measure if your twin's face centre is elsewhere in presenter.webm
+{{LOOKJS}}
+      // explicit t=0 state for every overlay (renderer seeks out of order)
+      tl.set(".ov", { opacity: 0 }, 0);
+      tl.set("#brk", { scaleY: 0 }, 0);
+
+      // ---------- the chart data: REPLACE with the creator's REAL numbers (label, value), oldest first.
+      // The shape on screen is exactly this data: never invent or "improve" it.
+      const CHART = [["2020", 100], ["2021", 140], ["2022", 125], ["2023", 180], ["2024", 230], ["2025", 300], ["2026", 520]];   // REPLACE
+      const HOT = 1;                     // how many final segments are the accent breakout
+      const CH = chartBuild("ch", CHART, HOT);
+      const xl = CHART.length <= 7 ? CHART : CHART.filter((_, k) => k % Math.ceil(CHART.length / 6) === 0 || k === CHART.length - 1);
+      document.getElementById("chxl").innerHTML = xl.map((r) => `<span>${r[0]}</span>`).join("");
+      const R0 = CHART[0][1] || 1, RC = CHART[CHART.length - 1 - HOT][1] / R0, RN = CHART[CHART.length - 1][1] / R0;
+      document.getElementById("multL").textContent = "מאז " + CHART[0][0];   // REPLACE
+      document.getElementById("pctv").textContent = pct((RN - 1) * 100);
+
+      // ---------- the bubble states (LOOK.md table)
+      const HERO = { x: 50, y: 260, w: 980, h: 1120, r: 56 }, HV = VIEW(HERO, 1.2, 0.40);
+      const PIP = { x: 560, y: 150, w: 470, h: 600, r: 44 }, PV = VIEW(PIP, 0.85, 0.45);
+      const STORY = { x: 0, y: 0, w: 1080, h: 1920, r: 0 }, SV = VIEW(STORY, 1.18, 0.333);
+      const PIPL = { x: 50, y: 150, w: 470, h: 600, r: 44 }, LV = VIEW(PIPL, 0.85, 0.45);
+      callInit(HERO, HV);
+      clock("#rtime", 1, Math.floor(DUR));
+
+      // ===== DEMO TIMELINE (0 - 10.2 s): one of each helper. Retime every t to your words; one screen per beat.
+      // thumbnail clears: the notification flicks away, the hook card drops
+      flickUp("#tch1", 0.02, 300, 0.24);
+      ft("#nb0", { y: 0, opacity: 1 }, { y: -300, opacity: 0, duration: 0.28, ease: "power3.in" }, 0.08);
+      ft("#hook0", { y: 0, opacity: 1 }, { y: 420, opacity: 0, duration: 0.3, ease: "power3.in" }, 0.06);
+
+      // NOTIFICATION: drop in, flick away; bump the bell on every event
+      notify("#nb1", 0.34, 1.55); badge("#badge", 0.4, 2);
+      tl.set("#abarNm", { opacity: 1 }, 1.95);   // the app name appears only once the banners have left the app bar
+
+      // COUNTER: dock to the right PiP, the card grows out of his hand, the number runs, the gain chip lands
+      dock(1.6, PIP, PV, 0.55);
+      emerge("card", 1.75, PV, 0, 0, 0.55); badge("#badge", 1.85, 3);
+      cnt("#num", 2.4, 1.0, 0, 1000000, num, 20);                     // REPLACE: from, to, formatter (num / usd / times / pct)
+      tl.set("#num", { color: "#E63B2E" }, 3.4);
+      ft("#num", { scale: 1.12 }, { scale: 1, duration: 0.3, ease: "back.out(3)" }, 3.4);
+      pop("#gain", 3.45, 0.4, 0.3);
+      shake(3.4, 8); flash(3.4, 0.25);
+
+      // STORY SWITCH: swipe, the bubble blows up to full screen, story chrome in, a sticker out of his hand (HANDS)
+      flickUp("#tch2", 4.04, 800, 0.36);
+      swipeOut("#card", 4.1);
+      dock(4.24, STORY, SV, 0.6);
+      storyOn(4.24, 2.2);
+      emerge("stk1", 4.9, SV, 0, 4);
+      ft("#stk1 .tx", { scale: 1 }, { scale: 1.12, duration: 0.14, yoyo: true, repeat: 1, ease: "power2.out" }, 5.6);
+
+      // CHAT: swipe back to a bubble (left PiP), the chat slides in, messages pop, the unread bubble grows from his hand
+      flickUp("#tch3", 6.4, 800, 0.36);
+      storyOff(6.46); swipeOut("#stk1", 6.46, 0.4);
+      dock(6.5, PIPL, LV, 0.55);
+      swipeIn("#chat", 6.54);
+      [["#m1", 6.75], ["#m2", 7.0], ["#m3", 7.25]].forEach(([s, t], k) => { pop(s, t, 0.7); badge("#badge", t, 4 + k); });
+      pop("#typing", 7.45, 0.7);
+      emerge("unread", 6.9, LV, 0, 0, 0.45); rise("#unreadL", 7.05, 30);
+
+      // CHART: scroll on, tap the tab, the line draws from CHART, the accent breakout, the multiplier lands
+      flickUp("#tch4", 7.8, 700, 0.3);
+      swipeOut("#chat", 7.86, 0.38); out("#unread", 7.86); out("#unreadL", 7.86);
+      swipeIn("#chart", 7.92);
+      tap("#tch5", 8.15);
+      tl.set("#tabAll", { backgroundColor: "#E63B2E", color: "#F5F3EE" }, 8.21);
+      rise("#mult", 8.15, 40); rise("#multL", 8.2, 30);
+      CH.drawCold(8.35, 0.85); cnt("#mult", 8.35, 0.85, 1, RC, times, 10, 1);
+      CH.drawHot(9.2, 0.4); cnt("#mult", 9.2, 0.4, RC, RN, times, 6, 1);
+      ft("#mult", { scale: 1.45 }, { scale: 1, duration: 0.35, ease: "back.out(2.6)" }, 9.6);
+      ft("#brk", { opacity: 1, scaleY: 0 }, { opacity: 1, scaleY: 1, duration: 0.3, ease: "expo.out" }, 9.58);
+      pop("#pctc", 9.7, 0.4, 0.3);
+      jolt("#chart", 9.6, 10); shake(9.6, 10); flash(9.6, 0.3);
+
+      // back to HERO: the face holds the frame until your next beat (keep PiP stretches <= ~5.5 s)
+      flickUp("#tch6", 10.14, 700, 0.3);
+      ["#chart", "#mult", "#multL", "#brk", "#pctc"].forEach((s) => swipeOut(s, 10.2, 0.4));
+      dock(10.24, HERO, HV, 0.55);
+      // ===== your next beats go here: one screen per beat, a flickUp + swipe between them =====
+
+      // ===== OUTRO (tied to DUR): the follow banner drops in and stays
+      const OUT = Math.max(10.9, DUR - 2.6);
+      notify("#nbEnd", OUT); badge("#badge", OUT + 0.06, 7);
+      out("#abarNm", OUT, 0.1);   // the banner sits over the app bar: hide the name so it does not peek out above it
+
+      // ---------- captions
+      const KEY = new Set([]);   // punch words (accent chips), spelled exactly as in the built captions, e.g. ["14", "AI"]
+      const caps = {{CAPS}};
+      const box = document.getElementById("caps");
+      caps.forEach((chunk, i) => {
+        const d = document.createElement("div"); d.className = "cap"; d.id = "cap" + i;
+        chunk.forEach(([w], j) => { const s = document.createElement("span"); s.className = "w" + (/^[\x00-\x7F×]+$/.test(w) ? " lat" : "") + (KEY.has(w) ? " key" : ""); s.id = `cw${i}_${j}`; s.textContent = w; d.appendChild(s); });
+        box.appendChild(d);
+        const start = chunk[0][1], end = i + 1 < caps.length ? Math.min(caps[i + 1][0][1], chunk[chunk.length - 1][1] + 1.2) : DUR;
+        tl.set(d, { opacity: 0 }, 0);
+        ft(d, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.16, ease: "expo.out" }, start - 0.04);
+        chunk.forEach(([w, s], j) => { const nx = j + 1 < chunk.length ? chunk[j + 1][1] : end; tl.set(`#cw${i}_${j}`, { attr: { "data-on": "1" } }, s); tl.set(`#cw${i}_${j}`, { attr: { "data-on": "0" } }, nx); });
+        if (i + 1 < caps.length) tl.set(d, { opacity: 0 }, end - 0.02);
+      });
+      tl.set({}, {}, DUR);
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="he">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    {{FONTS}}
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+{{LOOKCSS}}
+      /* ---------- this reel's content (SIGNAL starter: replace the demo, keep the chrome) ----------
+         Colours: only #111111 / #F5F3EE / #E63B2E, rgba(17,17,17,a) / rgba(245,243,238,a), color-mix of var(--red). */
+      /* hook: giant glitch word behind the twin, inside the screen (above his head) */
+      #gWord{ left:80px; top:262px; width:1000px; font-size:196px; color:color-mix(in srgb, var(--red) 80%, transparent); }
+
+      /* plate (split mode, screen y 230-800): a CSS bar chart built from BARS in the script */
+      #plT{ left:80px; top:236px; }
+      #chart{ left:90px; top:330px; width:980px; height:470px; }
+      #chart > *{ position:absolute; }
+      #chart .ax{ left:0; right:0; bottom:58px; height:3px; background:rgba(245,243,238,.8); }
+      #chart .bar{ bottom:61px; width:130px; transform-origin:50% 100%; border:3px solid rgba(245,243,238,.75); background-color:rgba(17,17,17,.88);
+        background-image:linear-gradient(rgba(245,243,238,.22) 2px, transparent 2px), linear-gradient(90deg, rgba(245,243,238,.22) 2px, transparent 2px); background-size:22px 30px; background-position:4px 8px; }
+      #chart .bar.on{ border-color:var(--red); background-color:color-mix(in srgb, var(--red) 42%, transparent);
+        background-image:linear-gradient(var(--red) 3px, transparent 3px), linear-gradient(90deg, var(--red) 3px, transparent 3px); box-shadow:0 0 40px color-mix(in srgb, var(--red) 55%, transparent); }
+      #chart .bv{ width:130px; text-align:center; font:700 40px "Space Mono","IBM Plex Sans Hebrew",monospace; color:var(--paper); direction:ltr; white-space:nowrap; }
+      #chart .bv.on{ color:var(--red); font-size:52px; }
+      #chart .bl{ bottom:0; width:130px; text-align:center; font:700 34px/50px "IBM Plex Sans Hebrew","Rubik",sans-serif; color:rgba(245,243,238,.75); direction:rtl; white-space:nowrap; }
+
+      /* radar behind the twin (inside the monitor) + the card that transmits out of his hand */
+      #radar{ left:640px; top:272px; width:500px; height:500px; border-radius:50%; }
+      #radar .rg{ position:absolute; border-radius:50%; border:2px solid rgba(245,243,238,.28); }
+      #radar .sw{ position:absolute; left:0; top:0; width:500px; height:500px; border-radius:50%; background:conic-gradient(from 0deg, color-mix(in srgb, var(--red) 60%, transparent), transparent 70deg); }
+      #radar .bp{ position:absolute; left:238px; top:238px; width:24px; height:24px; border-radius:50%; background:var(--red); box-shadow:0 0 24px var(--red); }
+      #card{ background:var(--ink); border:5px solid var(--red); box-shadow:0 0 50px color-mix(in srgb, var(--red) 50%, transparent); direction:rtl; text-align:center; overflow:hidden; }
+      #card .k{ display:block; margin-top:22px; font:700 26px "Space Mono","IBM Plex Sans Hebrew",monospace; color:var(--red); letter-spacing:.2em; direction:ltr; }
+      #card .v{ display:block; margin-top:6px; font:700 96px/1.1 "IBM Plex Sans Hebrew","Rubik",sans-serif; color:var(--paper); white-space:nowrap; }
+      #card .s{ display:block; margin-top:8px; font:500 32px "IBM Plex Sans Hebrew","Rubik",sans-serif; color:rgba(245,243,238,.75); white-space:nowrap; }
+
+      /* outro plate: slams in over his chest, DUR-tied */
+      #end{ left:190px; top:1040px; width:780px; height:170px; background:var(--ink); border:6px solid var(--red); box-shadow:0 0 60px color-mix(in srgb, var(--red) 60%, transparent);
+        font:700 76px/158px "IBM Plex Sans Hebrew","Rubik",sans-serif; color:var(--paper); text-align:center; direction:rtl; white-space:nowrap; }
+      #end small{ position:absolute; left:0; right:0; top:-46px; font:700 26px/1 "Space Mono","IBM Plex Sans Hebrew",monospace; color:var(--red); letter-spacing:.2em; direction:ltr; }
+{{CAPSTYLE}}
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="{{DUR}}" data-width="1080" data-height="1920">
+      <div id="cam">
+        <div class="full" id="bg"></div>
+
+        <!-- PLATES that sit ABOVE the monitor (split mode drops the monitor to the lower half) -->
+        <div class="chip ov" id="plT">כותרת הגרף<b>DATA 01</b></div><!-- REPLACE -->
+        <div class="ov" id="chart"></div>
+
+        <!-- THE MONITOR: everything inside is clipped to the screen. Behind-twin content goes before #twin. -->
+        <div id="mon">
+          <div id="scrbg"></div>
+          <div class="giant" id="gWord">עדכון</div><!-- REPLACE: one short word, behind his head -->
+          <div class="ov" id="radar">
+            <div class="rg" style="left:0;top:0;width:500px;height:500px;"></div>
+            <div class="rg" style="left:83px;top:83px;width:334px;height:334px;"></div>
+            <div class="rg" style="left:166px;top:166px;width:168px;height:168px;"></div>
+            <div class="sw" id="rsw"></div>
+            <div class="bp ov" id="rbp"></div>
+          </div>
+          <div id="twin">
+            <video id="pv" class="clip" src="assets/presenter.webm" muted playsinline data-start="0" data-duration="{{DUR}}" data-track-index="1"></video>
+          </div>
+          <div id="scan"></div>
+          <div id="roll"></div>
+          <div id="tear"></div>
+        </div>
+        <div id="bez">
+          <div class="brk" style="position:absolute;inset:0;"><i></i><i></i><i></i><i></i></div>
+          <span class="lab l">CAM 01 · 1080i</span><span class="lab r">● REC</span>
+        </div>
+
+        <!-- IN FRONT of the monitor (cam coordinates = screen + 40) -->
+        <div class="ov" id="card" style="left:700px;top:360px;width:340px;height:300px;">
+          <span class="k">FILE 01</span><span class="v">נושא</span><span class="s">שורת הסבר קצרה</span><!-- REPLACE -->
+        </div>
+        <div class="lock" id="lkCard" style="left:686px;top:346px;width:368px;height:328px;">
+          <div class="brk" style="position:absolute;inset:0;"><i></i><i></i><i></i><i></i></div><span class="tag" style="top:auto;bottom:-62px;">TARGET</span>
+        </div>
+        <div class="ov" id="end"><small>{{HEADER}}</small>שורת סיום כאן</div><!-- REPLACE -->
+        <div class="lock" id="lkEnd" style="left:176px;top:1026px;width:808px;height:198px;">
+          <div class="brk" style="position:absolute;inset:0;"><i></i><i></i><i></i><i></i></div>
+        </div>
+
+        <!-- broadcast furniture (the headline is in the HTML so it shows at t=0) -->
+        <div id="lt"><div class="tab"><b>BREAKING</b> · מבזק</div><div class="strip">כותרת הסיפור כאן<u></u></div></div><!-- REPLACE: the strip headline -->
+        <div id="tick"><div class="run"></div><div class="tg">LIVE</div></div>
+        <div id="top"><span class="live"><i></i>LIVE</span><span class="ch">{{HEADER}} · CH 01</span><span class="tc">TC 17:42:06:00</span></div>
+
+        <div class="full" id="vig"></div>
+        <div class="full" id="bars"><i style="background:#F5F3EE"></i><i style="background:rgba(245,243,238,.6)"></i><i style="background:#E63B2E"></i><i style="background:color-mix(in srgb, var(--red) 45%, #111111)"></i><i style="background:rgba(245,243,238,.3)"></i><i style="background:#111111"></i><i style="background:rgba(17,17,17,.6)"></i><div class="ns">NO SIGNAL</div></div>
+        <div class="full" id="static"></div>
+        <div class="full" id="flash"></div>
+        <div class="full" id="grain"></div>
+      </div>
+      <div class="caps" id="caps"></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const DUR = {{DUR}};
+      const HANDS = {{HANDS}};
+{{LOOKJS}}
+      buildBlocks(3);
+
+      // ===== beat times. The demo runs on these; set them from audio/words.json (the word that triggers each moment).
+      // Nothing here is hard-timed past ~10 s except the outro, which hangs off DUR. Add your own beats between anchor and outro.
+      const B = {
+        hook: 0,                               // frame 0: monitor, giant word, BREAKING lower third
+        plate: 3.0,                            // REPLACE: split mode + a system graphic above
+        lock: 6.2,                             // REPLACE: off-centre twin, radar, a card transmits out of his hand, brackets lock
+        anchor: 9.6,                           // REPLACE: NO SIGNAL chapter change, back to the centred anchor shot
+        outro: Math.max(11, DUR - 2.4),        // sign-off plate, tied to DUR
+      };
+
+      // ---------- DOM first, timeline after
+      const BARS = [["א׳", 34], ["ב׳", 52], ["ג׳", 88], ["ד׳", 41], ["ה׳", 60]];   // REPLACE: [label, value], up to 5
+      const HI = 2;                                                                  // REPLACE: the bar that carries the point
+      const chart = document.getElementById("chart");
+      chart.innerHTML = '<i class="ax"></i>';
+      BARS.forEach(([lab, v], i) => {
+        const x = 20 + i * 196, h = Math.round(v / 100 * 330);
+        chart.insertAdjacentHTML("beforeend",
+          `<div class="bar${i === HI ? " on" : ""}" id="bar${i}" style="left:${x}px;height:${h}px;"></div>` +
+          `<div class="bv${i === HI ? " on" : ""}" id="bv${i}" style="left:${x}px;bottom:${61 + h + 10}px;">${v}</div>` +
+          `<div class="bl" style="left:${x}px;">${lab}</div>`);
+      });
+      const crawl = ticker(["שורת מבזק ראשונה", "שורת מבזק שנייה", "שורה שלישית"]);   // REPLACE: 2-4 short ticker lines
+
+      // explicit t=0 state for every overlay (the renderer seeks out of order)
+      tl.set(".ov,.ph,.lock,.chip,.bar,.bv,.mb,#bars,#static", { opacity: 0 }, 0);
+      tl.set("#lt,#gWord,#bez", { opacity: 1 }, 0);
+      ambient(crawl);
+
+      // ===== HOOK (frame 0): the broadcast. Giant word behind him, BREAKING strip, slow push.
+      mode(B.hook, "mon", 0);
+      cut(B.hook, tw(1.0, 540, 600)); push(B.hook, tw(1.07, 540, 592), B.plate);
+      jitter("#gWord", 0, B.plate);
+      tl.to("#lt .strip u", { x: 960, duration: 0.5, ease: "power2.inOut", repeat: 2, yoyo: true }, 0.2);
+      jolt(1.8, 30); glitch(1.82, 0.1, 0.5);                                     // REPLACE time: a punch word in the hook
+      for (let k = 0; k < 6; k++) tl.set("#gWord", { opacity: k % 2 ? 1 : 0.2 }, 2.3 + k * 0.05);   // the word stutters
+      cutOut("#lt", B.plate - 0.1);
+
+      // ===== PLATE (split mode): monitor drops to the lower half, a system graphic scans in above. Keep it under ~4 s.
+      glitch(B.plate - 0.02, 0.24); hide("#gWord", B.plate);                    // sfx: static
+      mode(B.plate, "split", 0.28);
+      cut(B.plate, tw(0.62, 540, 1092)); push(B.plate, tw(0.66, 540, 1090), B.lock - B.plate);
+      tuneIn("#plT", B.plate + 0.2);
+      show("#chart", B.plate + 0.3);
+      BARS.forEach((_, i) => {
+        const t = B.plate + 0.4 + i * 0.16;                                      // sfx: chirp per bar
+        ft("#bar" + i, { opacity: 0, scaleY: 0 }, { opacity: 1, scaleY: 1, duration: 0.24, ease: "steps(5)" }, t);
+        tuneIn("#bv" + i, t + 0.2);
+      });
+      count("#bv" + HI, B.plate + 0.6 + HI * 0.16, 0.6, BARS[HI][1]);          // the key value ticks up
+      for (let k = 0; k < 6; k++) tl.set("#bar" + HI, { opacity: k % 2 ? 1 : 0.35 }, B.plate + 2.0 + k * 0.05);   // REPLACE time: the key bar flashes on its word
+      jolt(B.plate + 2.0, 22);
+      hide("#plT,#chart,.bar,.bv", B.lock);
+
+      // ===== LOCK (mon mode, twin off-centre): radar behind him, a card transmits out of his hand, brackets snap onto it.
+      glitch(B.lock - 0.02, 0.2);                                                // sfx: static
+      mode(B.lock, "mon", 0.24);
+      const fLock = tw(1.1, 400, 600);
+      cut(B.lock, fLock); push(B.lock, tw(1.14, 400, 596), B.anchor - B.lock);
+      tuneIn("#radar", B.lock + 0.1);                                            // sfx: radar
+      ft("#rsw", { rotation: 0 }, { rotation: 720, duration: B.anchor - B.lock, ease: "none" }, B.lock);
+      for (let k = 0; k < 3; k++) { tl.set("#rbp", { opacity: 1, scale: 1.6 }, B.lock + 0.3 + k * 0.2); tl.set("#rbp", { opacity: 0.4, scale: 1 }, B.lock + 0.4 + k * 0.2); }
+      sp("card", B.lock + 0.9, fLock, 0, B.anchor - 0.1); jolt(B.lock + 0.9, 22); // sfx: swipe (the hand spawn)
+      lockOn("#lkCard", B.lock + 1.4, B.anchor - 0.1, "TARGET: 01");            // REPLACE: tag text. sfx: lock + sub
+      flash(B.lock + 1.4); shake(B.lock + 1.42, 10);
+      hide("#radar", B.anchor);
+
+      // ===== ANCHOR: the one big chapter change (NO SIGNAL), then the centred anchor shot carries the rest.
+      nosig(B.anchor - 0.08, 0.26);                                              // sfx: static
+      mode(B.anchor, "mon", 0);
+      cut(B.anchor, tw(1.0, 540, 600)); push(B.anchor, tw(1.06, 540, 594), DUR - B.anchor);
+      // longer reels: add a beat per idea here (plate, lock, giant word, chips), joined by glitch() every 3 s or more.
+
+      // ===== OUTRO (DUR-tied): the sign-off plate slams over his chest and the brackets lock it.
+      glitch(B.outro - 0.02, 0.16, 0.7);
+      slam("#end", B.outro + 0.1, DUR + 1, 1.9); flash(B.outro + 0.1); shake(B.outro + 0.12, 12);   // sfx: sub
+      lockOn("#lkEnd", B.outro + 0.4, DUR + 1);
+      jitter("#end", B.outro + 0.6, DUR);
+
+      // ---------- captions: chunks come from build.py ({{CAPS}}).
+      // KEY = punch words exactly as in words.json after FIX/MERGE, punctuation included ("AI."). One or two per beat, short words only.
+      const KEY = new Set([]);                                                   // REPLACE
+      signalCaptions({{CAPS}}, KEY);
+      tl.set({}, {}, DUR);
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

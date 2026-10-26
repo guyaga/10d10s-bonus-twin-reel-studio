@@ -1,0 +1,10 @@
+      /* SIGNAL captions: a typed terminal line. Prompt ▸ on the right (RTL start), block cursor after the last word. */
+      .caps{ position:absolute; left:40px; right:40px; top:1500px; height:170px; }
+      .cap{ position:absolute; inset:0; display:flex; flex-direction:row; flex-wrap:wrap; justify-content:center; align-items:center; gap:0 18px; direction:rtl; opacity:0; }
+      .cap .pr{ font:700 54px "Space Mono",monospace; color:#E63B2E; margin-left:4px; }
+      .w{ font-family:"IBM Plex Sans Hebrew","Rubik",sans-serif; font-weight:700; font-size:76px; line-height:1.1; color:#F5F3EE; -webkit-text-stroke:12px #111111; paint-order:stroke fill; }
+      .w.lat{ font-family:"Space Mono","IBM Plex Sans Hebrew",monospace; font-weight:700; }
+      .w[data-on="1"]{ box-shadow:inset 0 -9px 0 #E63B2E; }
+      .w.key{ font-family:"Rubik Glitch","Rubik",sans-serif; font-weight:400; font-size:104px; color:#E63B2E; -webkit-text-stroke:10px #111111; }
+      .w.key[data-on="1"]{ box-shadow:none; }
+      .cur{ display:inline-block; width:34px; height:72px; background:#E63B2E; }

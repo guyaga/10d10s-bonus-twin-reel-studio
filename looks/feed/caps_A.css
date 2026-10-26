@@ -1,0 +1,9 @@
+      /* FEED captions: UI subtitle chips. Each word is a frosted ink chip; the spoken word inverts to paper (a selected filter chip); KEY words go accent. */
+      .caps{ top:1622px; height:196px; }
+      .cap{ gap:12px 12px; }
+      .w{ font-family:"Heebo",sans-serif; font-weight:800; font-size:62px; line-height:1.1; color:var(--paper); -webkit-text-stroke:0;
+          padding:8px 28px 14px; border-radius:999px; background:rgba(17,17,17,.82); box-shadow:0 0 0 2px rgba(245,243,238,.22), 0 12px 28px rgba(17,17,17,.35); }
+      .w.lat{ font-family:"Heebo",sans-serif; font-weight:800; }
+      .w.key{ font-size:62px; }
+      .w[data-on="1"]{ background:var(--paper); color:var(--ink); box-shadow:0 0 0 2px var(--ink), 0 14px 30px rgba(17,17,17,.4); }
+      .w.key[data-on="1"]{ background:var(--red); color:var(--paper); box-shadow:0 0 0 2px var(--paper), 0 14px 30px rgba(17,17,17,.4); }
